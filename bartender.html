@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bartender Control</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-900 text-white p-8 font-sans antialiased h-screen w-screen overflow-hidden flex flex-col text-lg">
+    
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 flex-1 min-h-0 overflow-hidden">
+        
+        <div class="lg:col-span-2 flex flex-col gap-8 h-full overflow-hidden">
+            
+            <div class="bg-gray-800 p-6 rounded-2xl border border-gray-700 flex-[2] flex flex-col overflow-hidden shadow-lg">
+                <div class="flex justify-between items-center border-b border-gray-700 pb-4 mb-5 shrink-0">
+                    <h1 class="text-3xl font-bold text-green-400">Active Orders</h1>
+                    
+                    <div class="flex gap-3 items-center">
+                        <button onclick="fetch('/api/event/trigger/goal')" class="bg-blue-700 hover:bg-blue-600 text-white px-4 py-2 rounded-xl font-bold transition shadow-sm border border-blue-500">🚨 GOAL</button>
+                        <button onclick="fetch('/api/event/trigger/touchdown')" class="bg-red-700 hover:bg-red-600 text-white px-4 py-2 rounded-xl font-bold transition shadow-sm border border-red-500 mr-4">🚨 TOUCHDOWN</button>
+
+                        <select id="sound-selector" onchange="localStorage.setItem('bar_sound_pref', this.value); if(isSoundOn) playNotification();" class="bg-gray-700 text-white px-3 py-2 rounded-xl border border-gray-600 font-bold focus:outline-none focus:ring-2 focus:ring-green-500 cursor-pointer">
+                            <option value="ding">Classic Ding</option>
+                            <option value="arcade">8-Bit Coin</option>
+                            <option value="levelup">Level Up</option>
+                            <option value="buzzer">Arena Buzzer</option>
+                            <option value="charge">Stadium Charge</option>
+                            <option value="train">Train Horn</option>
+                            <option value="random">🎲 Random Surprise</option>
+                        </select>
+                        <button id="sound-toggle" onclick="toggleSound()" class="bg-gray-700 hover:bg-gray-600 text-white px-5 py-2 rounded-xl font-bold transition shadow-sm border border-gray-600 w-44">🔇 Sound Off</button>
+                    </div>
+                </div>
+                <div id="order-queue" class="flex-1 overflow-y-auto grid grid-cols-1 md:grid-cols-2 gap-5 pr-3 content-start pb-4"></div>
+            </div>
+
+            <div class="bg-gray-800 p-6 rounded-2xl border border-gray-700 flex-[3] flex flex-col overflow-hidden shadow-lg">
+                <div class="flex justify-between items-center border-b border-gray-700 pb-4 mb-5 shrink-0">
+                    <h2 class="text-3xl font-bold text-blue-400">Manage Menu</h2>
+                    <button onclick="openNewDrinkForm()" class="bg-blue-600 hover:bg-blue-500 text-white px-5 py-2 rounded-xl font-bold transition shadow-sm">➕ New Drink</button>
+                </div>
+                
+                <div id="add-drink-form" class="hidden flex-col gap-4 mb-6 shrink-0 bg-gray-900 p-5 rounded-xl border border-gray-700 shadow-inner">
+                    <div class="flex gap-4">
+                        <input type="text" id="new-item-name" placeholder="Drink Name (e.g. Labatt Blue)" class="flex-1 bg-gray-700 text-white px-4 py-3 rounded-lg text-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <select id="new-item-category" class="bg-gray-700 text-white px-4 py-3 rounded-lg text-lg focus:outline-none focus:ring-2 focus:ring-blue-500 w-1/4">
+                            <option value="Beer">Beer</option>
+                            <option value="Wine">Wine</option>
+                            <option value="Cocktail">Cocktail</option>
+                            <option value="Shot">Shot</option>
+                        </select>
+                        <button onclick="quickLookup()" class="bg-purple-600 hover:bg-purple-500 text-white px-6 py-3 rounded-lg font-bold text-lg transition" title="Search web for info">🔍 Lookup</button>
+                    </div>
+                    <div class="flex gap-4">
+                        <input type="text" id="new-item-abv" placeholder="ABV (e.g. 5.5%)" class="bg-gray-700 text-white px-4 py-3 rounded-lg text-lg w-1/4 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <input type="text" id="new-item-cal" placeholder="Calories" class="bg-gray-700 text-white px-4 py-3 rounded-lg text-lg w-1/4 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <input type="text" id="new-item-notes" placeholder="Brief notes (e.g. Crisp, sweet)" class="flex-1 bg-gray-700 text-white px-4 py-3 rounded-lg text-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <button id="add-drink-btn" onclick="addOrUpdateMenuItem()" class="bg-green-600 hover:bg-green-500 text-white px-8 py-3 rounded-lg text-lg font-bold transition shadow">Add</button>
+                    </div>
+                </div>
+
+                <div id="menu-list" class="grid grid-cols-2 gap-4 overflow-y-auto flex-1 pr-3 content-start"></div>
+            </div>
+        </div>
+
+        <div class="flex flex-col gap-8 h-full overflow-hidden">
+            
+            <div class="bg-gray-800 p-6 rounded-2xl border border-gray-700 flex-1 flex flex-col overflow-hidden shadow-lg">
+                <div class="flex justify-between items-center border-b border-gray-700 pb-4 mb-5 shrink-0">
+                    <h2 class="text-3xl font-bold text-gray-400">Recent Pours</h2>
+                    <input type="date" id="global-history-date" onchange="loadDashboardData()" class="bg-gray-700 text-white rounded-lg px-3 py-2 text-base border border-gray-600 focus:outline-none focus:ring-2 focus:ring-purple-500 cursor-pointer">
+                </div>
+                <div id="order-history" class="space-y-4 overflow-y-auto flex-1 pr-3 pb-2"></div>
+            </div>
+            
+            <div class="bg-gray-800 p-6 rounded-2xl border border-gray-700 flex-1 flex flex-col overflow-hidden shadow-lg">
+                <div id="guest-box-title" class="flex justify-between items-center border-b border-gray-700 pb-4 mb-5 shrink-0">
+                    <h2 class="text-3xl font-bold text-purple-400">Guest Directory</h2>
+                </div>
+                <div id="guest-list-container" class="space-y-3 overflow-y-auto flex-1 pr-3 pb-2"></div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        let knownOrderIds = [];
+        let isSoundOn = false;
+        let initialLoadComplete = false;
+        let audioCtx = null;
+        let editingMenuId = null;
+
+        document.getElementById('sound-selector').value = localStorage.getItem('bar_sound_pref') || 'ding';
+
+        function toggleSound() {
+            isSoundOn = !isSoundOn;
+            const btn = document.getElementById('sound-toggle');
+            if (isSoundOn) {
+                btn.innerHTML = '🔊 Sound On';
+                btn.className = 'bg-green-600 hover:bg-green-500 text-white px-5 py-2 rounded-xl font-bold transition shadow-sm border border-green-500 w-44';
+                
+                if (!audioCtx) {
+                    const AudioContext = window.AudioContext || window.webkitAudioContext;
+                    audioCtx = new AudioContext();
+                }
+                if (audioCtx.state === 'suspended') audioCtx.resume();
+                playNotification();
+            } else {
+                btn.innerHTML = '🔇 Sound Off';
+                btn.className = 'bg-gray-700 hover:bg-gray-600 text-white px-5 py-2 rounded-xl font-bold transition shadow-sm border border-gray-600 w-44';
+            }
+        }
+
+        function playNotification(overrideSound = null) {
+            if (!isSoundOn || !audioCtx) return;
+            try {
+                let soundType = overrideSound || document.getElementById('sound-selector').value;
+                let options = ['ding', 'arcade', 'levelup', 'buzzer', 'charge', 'train'];
+                if (soundType === 'random') soundType = options[Math.floor(Math.random() * options.length)];
+
+                const t = audioCtx.currentTime;
+
+                if (soundType === 'ding') {
+                    const osc = audioCtx.createOscillator();
+                    const gainNode = audioCtx.createGain();
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(1046.50, t);
+                    gainNode.gain.setValueAtTime(0.5, t);
+                    gainNode.gain.exponentialRampToValueAtTime(0.0001, t + 1.5);
+                    osc.connect(gainNode); gainNode.connect(audioCtx.destination);
+                    osc.start(); osc.stop(t + 1.5);
+                }
+                else if (soundType === 'arcade') {
+                    const osc = audioCtx.createOscillator();
+                    const gainNode = audioCtx.createGain();
+                    osc.type = 'square';
+                    osc.frequency.setValueAtTime(987.77, t); 
+                    osc.frequency.setValueAtTime(1318.51, t + 0.1); 
+                    gainNode.gain.setValueAtTime(0.15, t);
+                    gainNode.gain.setTargetAtTime(0.0001, t + 0.3, 0.1);
+                    osc.connect(gainNode); gainNode.connect(audioCtx.destination);
+                    osc.start(); osc.stop(t + 0.6);
+                } 
+                else if (soundType === 'levelup') {
+                    const osc = audioCtx.createOscillator();
+                    const gainNode = audioCtx.createGain();
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(523.25, t);
+                    osc.frequency.setValueAtTime(659.25, t + 0.1);
+                    osc.frequency.setValueAtTime(783.99, t + 0.2);
+                    osc.frequency.setValueAtTime(1046.50, t + 0.3);
+                    gainNode.gain.setValueAtTime(0.3, t);
+                    gainNode.gain.setTargetAtTime(0.0001, t + 0.4, 0.2);
+                    osc.connect(gainNode); gainNode.connect(audioCtx.destination);
+                    osc.start(); osc.stop(t + 1.0);
+                }
+                else if (soundType === 'buzzer') {
+                    const osc = audioCtx.createOscillator();
+                    const gainNode = audioCtx.createGain();
+                    osc.type = 'sawtooth';
+                    osc.frequency.setValueAtTime(110, t);
+                    osc.frequency.setValueAtTime(110, t + 0.4); 
+                    osc.frequency.linearRampToValueAtTime(80, t + 0.8);
+                    gainNode.gain.setValueAtTime(0.4, t);
+                    gainNode.gain.setTargetAtTime(0.0001, t + 0.5, 0.1);
+                    osc.connect(gainNode); gainNode.connect(audioCtx.destination);
+                    osc.start(); osc.stop(t + 1.0);
+                }
+                else if (soundType === 'charge') {
+                    const osc = audioCtx.createOscillator();
+                    const gainNode = audioCtx.createGain();
+                    osc.type = 'square';
+                    osc.frequency.setValueAtTime(392, t);        
+                    osc.frequency.setValueAtTime(523.25, t + 0.15); 
+                    osc.frequency.setValueAtTime(659.25, t + 0.3);  
+                    osc.frequency.setValueAtTime(783.99, t + 0.45); 
+                    osc.frequency.setValueAtTime(659.25, t + 0.7);  
+                    osc.frequency.setValueAtTime(783.99, t + 0.85); 
+                    gainNode.gain.setValueAtTime(0.15, t);
+                    gainNode.gain.setTargetAtTime(0, t + 1.2, 0.05);
+                    osc.connect(gainNode); gainNode.connect(audioCtx.destination);
+                    osc.start(); osc.stop(t + 1.3);
+                }
+                else if (soundType === 'train') {
+                    const osc1 = audioCtx.createOscillator();
+                    const osc2 = audioCtx.createOscillator();
+                    const gainNode = audioCtx.createGain();
+                    osc1.type = 'sawtooth';
+                    osc2.type = 'sawtooth';
+                    osc1.frequency.setValueAtTime(155.56, t); 
+                    osc2.frequency.setValueAtTime(185.00, t); 
+                    gainNode.gain.setValueAtTime(0.3, t);
+                    gainNode.gain.setTargetAtTime(0.0001, t + 0.8, 0.2);
+                    osc1.connect(gainNode); osc2.connect(gainNode);
+                    gainNode.connect(audioCtx.destination);
+                    osc1.start(); osc2.start();
+                    osc1.stop(t + 1.2); osc2.stop(t + 1.2);
+                }
+            } catch(e) { console.log("Audio play error", e); }
+        }
+
+        let lastEventId = null;
+        setInterval(() => {
+            fetch('/api/event/current').then(r => r.json()).then(data => {
+                if (data.event && data.id !== lastEventId) {
+                    lastEventId = data.id;
+                    if (data.event === 'goal') playNotification('train');
+                    if (data.event === 'touchdown') playNotification('buzzer');
+                }
+            });
+        }, 1000);
+
+        function updateTimers() {
+            document.querySelectorAll('.order-timer').forEach(el => {
+                let placed = new Date(el.getAttribute('data-time'));
+                let diff = Math.floor((Date.now() - placed) / 1000);
+                if (diff < 0) diff = 0; 
+                
+                let m = Math.floor(diff / 60);
+                let s = diff % 60;
+                let timeStr = m + 'm ' + (s < 10 ? '0' : '') + s + 's';
+                
+                if (m >= 5) {
+                    el.className = 'order-timer text-base font-bold text-red-400 animate-pulse mt-1 block';
+                } else if (m >= 3) {
+                    el.className = 'order-timer text-base font-bold text-yellow-400 mt-1 block';
+                } else {
+                    el.className = 'order-timer text-base font-bold text-gray-400 mt-1 block';
+                }
+                
+                el.innerText = 'Wait: ' + timeStr;
+            });
+        }
+
+        function loadDashboardData() {
+            fetch('/api/orders/active').then(res => res.json()).then(data => {
+                const queue = document.getElementById('order-queue');
+                queue.innerHTML = '';
+                if (data.orders.length === 0) queue.innerHTML = '<div class="text-gray-500 italic flex items-center justify-center h-full text-2xl w-full">No active orders</div>';
+                
+                const currentIds = data.orders.map(o => o.id);
+                
+                if (initialLoadComplete) {
+                    const hasNew = currentIds.some(id => !knownOrderIds.includes(id));
+                    if (hasNew) playNotification(); 
+                }
+                
+                knownOrderIds = currentIds;
+                initialLoadComplete = true; 
+
+                data.orders.forEach(order => {
+                    let noteHtml = order.note ? `<div class="text-base font-bold text-yellow-300 bg-yellow-900/40 p-3 rounded-lg mt-3 border border-yellow-700/50 shadow-inner">💬 ${order.note}</div>` : '';
+                    queue.innerHTML += `
+                        <div class="bg-gray-700 p-5 rounded-2xl border-l-8 border-blue-500 shadow-md flex flex-col">
+                            <div class="flex justify-between items-start mb-3">
+                                <h2 class="text-2xl font-bold text-white">${order.guest_name}</h2>
+                                <div class="text-right">
+                                    <span class="text-sm text-gray-300 block">${order.time}</span>
+                                    <span class="order-timer text-base font-bold text-gray-400 mt-1 block" data-time="${order.raw_time}">Wait: 0m 00s</span>
+                                </div>
+                            </div>
+                            <p class="text-3xl text-blue-300 font-bold mb-1">${order.item_name}</p>
+                            ${noteHtml}
+                            <div class="flex gap-4 mt-6 mt-auto">
+                                <button onclick="serveOrder(${order.id})" class="flex-1 bg-green-600 hover:bg-green-500 py-3 rounded-xl text-xl font-bold transition shadow">Serve</button>
+                                <button onclick="rejectOrder(${order.id})" class="bg-red-600 hover:bg-red-500 px-6 py-3 rounded-xl text-xl font-bold transition shadow">Reject</button>
+                            </div>
+                        </div>
+                    `;
+                });
+                
+                updateTimers(); 
+            });
+
+            let dateFilter = document.getElementById('global-history-date').value;
+            let url = '/api/orders/history';
+            if (dateFilter) url += `?date=${dateFilter}`;
+
+            fetch(url).then(res => res.json()).then(data => {
+                const history = document.getElementById('order-history');
+                history.innerHTML = '';
+                if (data.orders.length === 0) history.innerHTML = '<p class="text-gray-500 italic text-xl">No orders found.</p>';
+                data.orders.forEach(order => {
+                    history.innerHTML += `
+                        <div class="bg-gray-700 p-4 rounded-xl flex justify-between items-center shadow-sm">
+                            <div>
+                                <p class="font-bold text-xl text-gray-200">${order.guest_name}</p>
+                                <p class="text-lg text-blue-300">${order.item_name}</p>
+                            </div>
+                            <span class="text-base text-gray-400">${order.time}</span>
+                        </div>
+                    `;
+                });
+            });
+
+            if (document.getElementById('guest-box-title').innerText.includes('Guest Directory')) {
+                loadGuests();
+            }
+        }
+
+        function serveOrder(orderId) {
+            fetch(`/api/orders/${orderId}/serve`, { method: 'POST' }).then(() => loadDashboardData());
+        }
+
+        function rejectOrder(orderId) {
+            const reason = prompt("Reject this order?\n(Optional: Type a reason to show the guest, or leave blank)");
+            if (reason !== null) {
+                fetch(`/api/orders/${orderId}/reject`, { 
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ reason: reason.trim() })
+                }).then(() => loadDashboardData());
+            }
+        }
+
+        // --- NEW: Delete individual order function ---
+        function deleteOrder(orderId, guestName, deviceId) {
+            if (confirm("Permanently delete this order? It will be removed from all stats and leaderboards.")) {
+                fetch(`/api/orders/${orderId}`, { method: 'DELETE' }).then(() => {
+                    let dateFilter = document.getElementById('global-history-date') ? document.getElementById('global-history-date').value : '';
+                    viewGuestHistory(guestName, deviceId, dateFilter);
+                    loadDashboardData(); 
+                });
+            }
+        }
+
+        function loadMenuAdmin() {
+            fetch('/menu').then(res => res.json()).then(data => {
+                const menuList = document.getElementById('menu-list');
+                menuList.innerHTML = '';
+                data.menu.forEach(item => {
+                    let details = [];
+                    if (item.abv) details.push(item.abv);
+                    if (item.calories) details.push(item.calories + ' cal');
+                    let detailStr = details.length > 0 ? ` <span class="text-sm text-gray-400 font-normal ml-2 block truncate">(${details.join(' | ')})</span>` : '';
+
+                    let safeName = item.item_name.replace(/'/g, "\\'");
+                    let safeCat = item.category.replace(/'/g, "\\'");
+                    let safeAbv = (item.abv || '').replace(/'/g, "\\'");
+                    let safeCal = (item.calories || '').replace(/'/g, "\\'");
+                    let safeNotes = (item.notes || '').replace(/'/g, "\\'");
+
+                    menuList.innerHTML += `
+                        <div class="flex justify-between items-center bg-gray-700 px-5 py-4 rounded-xl shadow-sm overflow-hidden">
+                            <div class="truncate pr-3">
+                                <span class="font-bold text-xl text-gray-100">${item.item_name}</span> 
+                                <span class="text-xs text-gray-400 ml-2 uppercase tracking-widest bg-gray-800 px-2 py-1 rounded-md shrink-0">${item.category}</span>
+                                ${detailStr}
+                            </div>
+                            <div class="flex gap-2 shrink-0">
+                                <button onclick="editMenuItem(${item.id}, '${safeName}', '${safeCat}', '${safeAbv}', '${safeCal}', '${safeNotes}')" class="text-blue-400 hover:text-blue-300 text-lg font-bold px-4 py-2 bg-gray-800 rounded-lg hover:bg-gray-900 transition shrink-0">Edit</button>
+                                <button onclick="removeMenuItem(${item.id})" class="text-red-400 hover:text-red-300 text-lg font-bold px-4 py-2 bg-gray-800 rounded-lg hover:bg-gray-900 transition shrink-0">Remove</button>
+                            </div>
+                        </div>
+                    `;
+                });
+            });
+        }
+
+        function quickLookup() {
+            const drinkName = document.getElementById('new-item-name').value;
+            if (!drinkName) {
+                alert("Please type a drink name first to look it up!");
+                return;
+            }
+            const query = encodeURIComponent(`${drinkName} nutrition calories abv percent alcohol`);
+            window.open(`https://www.google.com/search?q=${query}`, '_blank');
+        }
+
+        function openNewDrinkForm() {
+            editingMenuId = null;
+            document.getElementById('add-drink-btn').innerText = "Add";
+            document.getElementById('add-drink-btn').className = "bg-green-600 hover:bg-green-500 text-white px-8 py-3 rounded-lg text-lg font-bold transition shadow";
+            document.getElementById('new-item-name').value = '';
+            document.getElementById('new-item-category').value = 'Beer';
+            document.getElementById('new-item-abv').value = '';
+            document.getElementById('new-item-cal').value = '';
+            document.getElementById('new-item-notes').value = '';
+            document.getElementById('add-drink-form').classList.remove('hidden');
+        }
+
+        function editMenuItem(id, name, cat, abv, cal, notes) {
+            editingMenuId = id;
+            document.getElementById('add-drink-btn').innerText = "Update";
+            document.getElementById('add-drink-btn').className = "bg-yellow-600 hover:bg-yellow-500 text-white px-8 py-3 rounded-lg text-lg font-bold transition shadow";
+            document.getElementById('new-item-name').value = name;
+            document.getElementById('new-item-category').value = cat;
+            document.getElementById('new-item-abv').value = abv;
+            document.getElementById('new-item-cal').value = cal;
+            document.getElementById('new-item-notes').value = notes;
+            document.getElementById('add-drink-form').classList.remove('hidden');
+        }
+
+        function addOrUpdateMenuItem() {
+            const nameInput = document.getElementById('new-item-name');
+            const catInput = document.getElementById('new-item-category');
+            const abvInput = document.getElementById('new-item-abv');
+            const calInput = document.getElementById('new-item-cal');
+            const notesInput = document.getElementById('new-item-notes');
+            
+            if (!nameInput.value) return;
+
+            let url = '/api/menu';
+            let method = 'POST';
+            if (editingMenuId) {
+                url = `/api/menu/${editingMenuId}`;
+                method = 'PUT';
+            }
+
+            fetch(url, {
+                method: method,
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ 
+                    item_name: nameInput.value.trim(), 
+                    category: catInput.value,
+                    abv: abvInput.value.trim() || null,
+                    calories: calInput.value.trim() || null,
+                    notes: notesInput.value.trim() || null
+                })
+            }).then(() => {
+                document.getElementById('add-drink-form').classList.add('hidden');
+                editingMenuId = null;
+                loadMenuAdmin();
+            });
+        }
+
+        function removeMenuItem(itemId) {
+            if(confirm("Remove this drink?")) {
+                fetch(`/api/menu/${itemId}`, { method: 'DELETE' }).then(() => loadMenuAdmin());
+            }
+        }
+
+        function editGuestName(deviceId, oldName) {
+            let newName = prompt("Edit guest name:", oldName);
+            if (newName && newName.trim() !== "" && newName !== oldName) {
+                fetch(`/api/guest/${deviceId}/name`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ new_name: newName.trim() })
+                }).then(() => loadDashboardData());
+            }
+        }
+
+        function loadGuests() {
+            fetch('/api/guests').then(res => res.json()).then(data => {
+                const container = document.getElementById('guest-list-container');
+                container.innerHTML = '';
+                if (data.guests.length === 0) container.innerHTML = '<p class="text-gray-500 italic text-xl">No guests yet.</p>';
+                data.guests.forEach(g => {
+                    let cutoffBtnClass = g.is_cut_off ? 'bg-orange-800 text-orange-200 hover:bg-orange-700' : 'bg-green-700 text-white hover:bg-green-600';
+                    let cutoffText = g.is_cut_off ? 'Cut Off' : 'Active';
+                    
+                    container.innerHTML += `
+                        <div class="bg-gray-700 hover:bg-gray-600 rounded-xl flex justify-between items-center shadow-sm mb-3 transition overflow-hidden">
+                            <button onclick="viewGuestHistory('${g.name.replace(/'/g, "\\'")}', '${g.device_id}')" class="flex-1 text-left px-5 py-4 truncate">
+                                <span class="font-bold text-xl text-gray-200">${g.name}</span>
+                                <span class="text-gray-400 text-base ml-3">View ➔</span>
+                            </button>
+                            <button onclick="editGuestName('${g.device_id}', '${g.name.replace(/'/g, "\\'")}')" class="px-5 py-4 text-xl font-bold bg-gray-800 hover:bg-gray-700 transition text-blue-400" title="Edit Name">✏️</button>
+                            <button onclick="toggleCutoff('${g.device_id}')" class="px-6 py-4 text-base font-bold border-l border-r border-gray-600 transition ${cutoffBtnClass}" title="Toggle Cutoff">${cutoffText}</button>
+                            <button onclick="deleteGuest('${g.device_id}', '${g.name.replace(/'/g, "\\'")}')" class="text-red-400 hover:text-red-300 px-6 py-4 text-xl font-bold bg-gray-800 hover:bg-gray-700 transition" title="Delete Guest">✕</button>
+                        </div>
+                    `;
+                });
+            });
+        }
+
+        function toggleCutoff(deviceId) {
+            fetch(`/api/guest/${deviceId}/toggle_cutoff`, { method: 'POST' }).then(() => loadDashboardData());
+        }
+
+        function deleteGuest(deviceId, name) {
+            if (confirm(`Are you sure you want to permanently delete ${name} and all their history?`)) {
+                fetch(`/api/guest/${deviceId}`, { method: 'DELETE' }).then(() => loadDashboardData());
+            }
+        }
+
+        function viewGuestHistory(name, deviceId, dateFilter = '') {
+            document.getElementById('guest-box-title').innerHTML = `
+                <div class="flex items-center justify-between w-full">
+                    <div>
+                        <button onclick="showGuestList()" class="text-lg font-bold text-blue-400 hover:text-blue-300 mr-4">⬅ Back</button>
+                        <span class="text-3xl font-bold text-gray-200">${name}'s Log</span>
+                    </div>
+                    <input type="date" value="${dateFilter}" onchange="viewGuestHistory('${name.replace(/'/g, "\\'")}', '${deviceId}', this.value)" class="bg-gray-700 text-white rounded-lg px-3 py-2 text-base border border-gray-600 focus:outline-none focus:ring-2 focus:ring-purple-500 cursor-pointer">
+                </div>
+            `;
+
+            let url = `/api/guest/${deviceId}/history`;
+            if (dateFilter) url += `?date=${dateFilter}`;
+
+            fetch(url).then(res => res.json()).then(data => {
+                const container = document.getElementById('guest-list-container');
+                container.innerHTML = '';
+                if (data.history.length === 0) container.innerHTML = '<p class="text-gray-500 italic text-xl">No orders found.</p>';
+                data.history.forEach(order => {
+                    let textStyle = order.status === 'rejected' ? 'text-gray-500 line-through' : 'text-blue-300';
+                    let reasonText = order.reject_reason ? ` <span class="text-sm text-red-400 ml-2">(${order.reject_reason})</span>` : '';
+                    
+                    // --- UPDATED: Added a trash can button to permanently delete the order ---
+                    container.innerHTML += `
+                        <div class="bg-gray-700 p-4 rounded-xl flex justify-between items-center text-lg shadow-sm mb-3 group">
+                            <div class="flex-1">
+                                <span class="${textStyle} font-semibold">${order.item_name}${reasonText}</span>
+                            </div>
+                            <div class="flex items-center gap-4 shrink-0">
+                                <span class="text-gray-400 text-base">${order.time}</span>
+                                <button onclick="deleteOrder(${order.id}, '${name.replace(/'/g, "\\'")}', '${deviceId}')" class="text-gray-500 hover:text-red-400 transition-colors" title="Permanently delete order">🗑️</button>
+                            </div>
+                        </div>
+                    `;
+                });
+            });
+        }
+
+        function showGuestList() {
+            document.getElementById('guest-box-title').innerHTML = `<h2 class="text-3xl font-bold text-purple-400">Guest Directory</h2>`;
+            loadGuests();
+        }
+
+        loadDashboardData();
+        loadMenuAdmin();
+        setInterval(loadDashboardData, 3000);
+        setInterval(updateTimers, 1000); 
+    </script>
+</body>
+</html>

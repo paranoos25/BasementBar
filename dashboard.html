@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bar Display</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @keyframes marquee { 0% { transform: translateX(100%); } 100% { transform: translateX(-100%); } }
+        .animate-marquee { display: inline-block; animation: marquee 25s linear infinite; }
+        @keyframes progress { 0% { width: 0%; } 100% { width: 100%; } }
+        .animate-progress { animation: progress 15s linear infinite; }
+        
+        /* --- NEW: High-Energy Celebration Animations --- */
+        @keyframes flashGoal {
+            0%, 100% { background-color: #1e3a8a; } /* Deep Blue */
+            50% { background-color: #ca8a04; } /* Sabres Yellow */
+        }
+        .animate-flash-goal { animation: flashGoal 0.5s infinite; }
+
+        @keyframes flashTd {
+            0%, 100% { background-color: #991b1b; } /* Deep Red */
+            50% { background-color: #1e40af; } /* Bills Blue */
+        }
+        .animate-flash-td { animation: flashTd 0.5s infinite; }
+
+        @keyframes zoomBounce {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.15); }
+        }
+        .animate-zoom-bounce { animation: zoomBounce 0.6s infinite alternate ease-in-out; }
+        
+        @keyframes spinSlow {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        .animate-spin-slow { animation: spinSlow 3s linear infinite; }
+    </style>
+</head>
+<body class="bg-gray-900 text-white h-screen w-screen overflow-hidden flex flex-col font-sans relative">
+    
+    <!-- Fullscreen Goal/Event Hijack Overlay -->
+    <div id="event-overlay" class="absolute inset-0 z-50 hidden opacity-0 transition-opacity duration-300 flex items-center justify-center">
+        <!-- Dynamic background and text injected here -->
+    </div>
+
+    <!-- Header & Loading Bar -->
+    <div class="bg-gray-800 shrink-0 z-20 shadow-xl flex flex-col relative">
+        <div class="p-6 text-center">
+            <h1 class="text-6xl font-black text-blue-400 tracking-widest uppercase flex items-center justify-center gap-6">
+                🏒 Basement Bar 🏈
+            </h1>
+        </div>
+        <div class="w-full h-[6px] bg-gray-700">
+            <div class="h-full bg-blue-500 animate-progress relative shadow-[0_0_15px_rgba(59,130,246,0.8)]">
+                <div class="absolute right-0 top-0 w-4 h-full bg-white opacity-50 shadow-[0_0_10px_#fff]"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="flex-1 relative overflow-hidden bg-black">
+        
+        <div id="view-board" class="absolute inset-0 flex flex-col gap-6 p-6 opacity-100 transition-opacity duration-1000 z-10">
+            <div class="flex-[3] bg-gray-800 rounded-3xl p-6 border-4 border-green-500 shadow-[0_0_40px_rgba(34,197,94,0.3)] flex flex-col overflow-hidden relative">
+                <h2 class="text-4xl font-black text-green-400 mb-4 uppercase tracking-widest border-b-4 border-gray-700 pb-2 shrink-0">Now Pouring</h2>
+                <div id="queue" class="flex-1 flex flex-col gap-3 justify-start overflow-hidden"></div>
+            </div>
+            <div class="flex-[4] bg-gray-800 rounded-3xl p-8 border-4 border-blue-500 shadow-[0_0_30px_rgba(59,130,246,0.2)] flex flex-col overflow-hidden relative">
+                <h2 class="text-4xl font-black text-blue-400 mb-6 uppercase tracking-widest border-b-4 border-gray-700 pb-4 shrink-0">📅 Tonight's Tab</h2>
+                <div id="tonight-tab" class="flex-1 flex flex-col justify-between"></div>
+            </div>
+            <div id="cycling-container" class="flex-[5] bg-gray-800 rounded-3xl p-8 border-4 border-yellow-500 shadow-[0_0_30px_rgba(234,179,8,0.2)] flex flex-col overflow-hidden relative transition-all duration-500 opacity-100"></div>
+        </div>
+
+        <div id="view-liquid" class="absolute inset-0 flex flex-col items-center justify-center p-8 opacity-0 pointer-events-none transition-opacity duration-1000 z-10 bg-gray-900">
+            <h2 class="text-6xl font-black text-blue-400 tracking-widest uppercase mb-12">The Liquid Diet</h2>
+            <div class="relative w-2/3 h-2/3 border-[16px] border-gray-600 rounded-b-[60px] border-t-0 flex flex-col justify-end overflow-hidden shadow-[0_0_80px_rgba(59,130,246,0.2)]">
+                <div id="liquid-fill" class="bg-blue-600 w-full transition-all duration-[3000ms] ease-in-out relative flex flex-col items-center justify-center" style="height: 0%">
+                    <div class="absolute top-0 w-full h-6 bg-blue-400/50"></div>
+                    <div class="absolute inset-0 bg-gradient-to-t from-blue-800 to-transparent"></div>
+                </div>
+                <div class="absolute inset-0 flex flex-col items-center justify-center text-center z-10 drop-shadow-2xl">
+                    <h3 class="text-8xl font-black text-white" id="liquid-cals">0 Cals</h3>
+                    <p class="text-5xl font-bold text-yellow-300 mt-6 bg-black/50 px-8 py-4 rounded-3xl border border-yellow-600" id="liquid-wings">Equivalent to ~0 Bar Bill Wings 🍗</p>
+                </div>
+            </div>
+        </div>
+
+        <div id="view-awards" class="absolute inset-0 flex flex-col p-8 opacity-0 pointer-events-none transition-opacity duration-1000 z-10 bg-gray-900">
+            <h2 class="text-6xl font-black text-yellow-400 tracking-widest uppercase mb-12 text-center">🏆 Game Day Awards 🏆</h2>
+            <div id="awards-grid" class="flex-1 grid grid-cols-2 gap-8 content-start"></div>
+        </div>
+
+    </div>
+
+    <div class="h-16 bg-red-950 border-t-[6px] border-red-700 flex items-center overflow-hidden shrink-0 relative z-20">
+        <div class="absolute left-0 bg-red-700 h-full flex items-center px-4 z-30 font-black text-2xl tracking-widest border-r-4 border-red-900 shadow-xl">🚨 WALL OF SHAME</div>
+        <div id="shame-ticker" class="whitespace-nowrap text-3xl font-black text-red-300 tracking-widest uppercase animate-marquee pl-[300px]"></div>
+    </div>
+
+    <script>
+        let currentView = 1; 
+        let cycleState = 'leaderboard';
+        let statsCache = { all_time: [], popular: [] };
+
+        let currentEventId = null;
+        setInterval(() => {
+            fetch('/api/event/current').then(r => r.json()).then(data => {
+                const overlay = document.getElementById('event-overlay');
+                
+                if (data.id !== currentEventId) {
+                    currentEventId = data.id;
+                    
+                    if (data.event === 'goal') {
+                        overlay.className = 'absolute inset-0 z-50 flex items-center justify-center animate-flash-goal transition-opacity duration-300 opacity-100 p-6 overflow-hidden';
+                        overlay.innerHTML = `
+                            <div class="text-center flex flex-col items-center justify-center w-full animate-zoom-bounce">
+                                <div class="flex gap-12 mb-12 items-center justify-center">
+                                    <div class="text-[12vw] leading-none animate-spin-slow">🚨</div>
+                                    <div class="text-[14vw] leading-none animate-bounce drop-shadow-2xl">🏒</div>
+                                    <div class="text-[12vw] leading-none animate-spin-slow">🚨</div>
+                                </div>
+                                <h1 class="text-[20vw] leading-none font-black text-white italic tracking-tighter drop-shadow-[0_0_60px_rgba(250,204,21,1)]">GOAL!</h1>
+                                <h2 class="text-[5.5vw] font-bold text-yellow-300 mt-12 tracking-widest shadow-black drop-shadow-lg animate-pulse">LET'S GO BUFFALO</h2>
+                            </div>
+                        `;
+                    } else if (data.event === 'touchdown') {
+                        overlay.className = 'absolute inset-0 z-50 flex items-center justify-center animate-flash-td transition-opacity duration-300 opacity-100 p-6 overflow-hidden';
+                        overlay.innerHTML = `
+                            <div class="text-center flex flex-col items-center justify-center w-full animate-zoom-bounce">
+                                <div class="flex gap-12 mb-12 items-center justify-center">
+                                    <div class="text-[12vw] leading-none animate-spin-slow">🚨</div>
+                                    <div class="text-[14vw] leading-none animate-bounce drop-shadow-2xl">🏈</div>
+                                    <div class="text-[12vw] leading-none animate-spin-slow">🚨</div>
+                                </div>
+                                <h1 class="text-[11vw] leading-none font-black text-white italic tracking-tighter drop-shadow-[0_0_60px_rgba(59,130,246,1)] border-white">TOUCHDOWN!</h1>
+                                <h2 class="text-[9vw] font-bold text-blue-300 mt-12 tracking-widest shadow-black drop-shadow-lg animate-pulse">GO BILLS!</h2>
+                            </div>
+                        `;
+                    } else {
+                        overlay.classList.remove('opacity-100');
+                        overlay.classList.add('opacity-0');
+                        setTimeout(() => overlay.classList.add('hidden'), 300);
+                    }
+                }
+            }).catch(e => console.error("Event poll error:", e));
+        }, 1000);
+
+        function rotateViews() {
+            const views = ['view-board', 'view-liquid', 'view-awards'];
+            views.forEach((id, index) => {
+                const el = document.getElementById(id);
+                if (index === currentView) {
+                    el.style.opacity = '1';
+                    el.classList.remove('pointer-events-none');
+                } else {
+                    el.style.opacity = '0';
+                    el.classList.add('pointer-events-none');
+                }
+            });
+            currentView = (currentView + 1) % views.length;
+        }
+        setInterval(rotateViews, 15000);
+
+        function updateCycleUI() {
+            const container = document.getElementById('cycling-container');
+            container.style.opacity = '0';
+            
+            setTimeout(() => {
+                if (cycleState === 'leaderboard') {
+                    let html = '<h2 class="text-4xl font-black text-yellow-400 mb-6 uppercase tracking-widest border-b-4 border-gray-700 pb-4 shrink-0">🏆 All-Time Heavy Hitters</h2><div class="flex-1 flex flex-col justify-between">';
+                    if (statsCache.all_time.length === 0) {
+                        html += '<div class="text-4xl text-gray-500 italic flex items-center justify-center h-full">No drinks poured yet</div>';
+                    } else {
+                        statsCache.all_time.slice(0, 5).forEach((g, i) => {
+                            let rank = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : '🍺';
+                            html += `<div class="flex justify-between items-center text-4xl gap-4"><span class="font-bold text-gray-200 break-words leading-tight flex-1">${rank} ${g.name}</span><span class="font-black text-yellow-400 text-5xl bg-yellow-900/40 px-4 py-2 rounded-xl border border-yellow-700 shrink-0">${g.count}</span></div>`;
+                        });
+                    }
+                    html += '</div>';
+                    container.innerHTML = html;
+                    container.className = "flex-[5] bg-gray-800 rounded-3xl p-8 border-4 border-yellow-500 shadow-[0_0_30px_rgba(234,179,8,0.2)] flex flex-col overflow-hidden relative transition-all duration-500";
+                    cycleState = 'popular';
+                } else {
+                    let html = '<h2 class="text-4xl font-black text-purple-400 mb-6 uppercase tracking-widest border-b-4 border-gray-700 pb-4 shrink-0">🔥 All-Time Favorites</h2><div class="flex-1 flex flex-col justify-between">';
+                    if (statsCache.popular.length === 0) {
+                        html += '<div class="text-4xl text-gray-500 italic flex items-center justify-center h-full">No data yet</div>';
+                    } else {
+                        statsCache.popular.slice(0, 5).forEach(d => {
+                            html += `<div class="flex justify-between items-center text-4xl gap-4"><span class="font-bold text-gray-200 break-words leading-tight flex-1">${d.name}</span><span class="font-black text-purple-400 text-5xl bg-purple-900/40 px-4 py-2 rounded-xl border border-purple-700 shrink-0">${d.count}</span></div>`;
+                        });
+                    }
+                    html += '</div>';
+                    container.innerHTML = html;
+                    container.className = "flex-[5] bg-gray-800 rounded-3xl p-8 border-4 border-purple-500 shadow-[0_0_30px_rgba(168,85,247,0.2)] flex flex-col overflow-hidden relative transition-all duration-500";
+                    cycleState = 'leaderboard';
+                }
+                container.style.opacity = '1';
+            }, 500);
+        }
+
+        function loadDashboardData() {
+            fetch('/api/orders/active').then(r => r.json()).then(data => {
+                const q = document.getElementById('queue');
+                q.innerHTML = '';
+                if (data.orders.length === 0) {
+                    q.innerHTML = '<div class="text-4xl text-gray-500 italic h-full flex items-center justify-center font-bold">Bar is clear!</div>';
+                } else {
+                    data.orders.slice(0, 3).forEach((order, index) => {
+                        let extraClass = index === 0 ? 'bg-gray-700 border-l-[8px] border-green-500 animate-pulse' : 'bg-gray-700/50 border-l-[4px] border-blue-500';
+                        let nameColor = index === 0 ? 'text-green-300' : 'text-white';
+                        q.innerHTML += `<div class="flex justify-between items-center p-3 rounded-2xl ${extraClass} shadow-lg gap-4 shrink-0"><div class="text-3xl font-black ${nameColor} uppercase break-words leading-tight w-[45%]">${order.guest_name}</div><div class="text-2xl text-blue-200 font-bold text-right break-words leading-tight w-[50%]">${order.item_name}</div></div>`;
+                    });
+                    if (data.orders.length > 3) q.innerHTML += `<div class="text-center text-2xl text-gray-400 font-bold shrink-0">+ ${data.orders.length - 3} more waiting</div>`;
+                }
+            });
+
+            fetch('/api/stats').then(r => r.json()).then(data => {
+                const tt = document.getElementById('tonight-tab');
+                tt.innerHTML = '';
+                if (data.tonight.length === 0) {
+                    tt.innerHTML = '<div class="text-4xl text-gray-500 italic flex items-center justify-center h-full">Quiet night so far...</div>';
+                } else {
+                    data.tonight.slice(0, 5).forEach((g) => {
+                        tt.innerHTML += `<div class="flex justify-between items-center text-4xl gap-4"><span class="font-bold text-gray-200 break-words leading-tight flex-1">${g.name}</span><span class="font-black text-blue-400 text-5xl bg-blue-900/40 px-4 py-2 rounded-xl border border-blue-700 shrink-0">${g.count}</span></div>`;
+                    });
+                }
+                statsCache.all_time = data.all_time;
+                statsCache.popular = data.popular;
+                if (document.getElementById('cycling-container').innerHTML.trim() === '') updateCycleUI();
+
+                let cals = data.liquid_diet.total_cals;
+                document.getElementById('liquid-cals').innerText = cals.toLocaleString() + ' Cals';
+                document.getElementById('liquid-wings').innerText = `Equivalent to ~${Math.floor(cals / 100)} Bar Bill Wings 🍗`;
+                
+                let fillPct = Math.min(100, (data.liquid_diet.total_drinks / 30) * 100);
+                document.getElementById('liquid-fill').style.height = fillPct + '%';
+
+                const aw = document.getElementById('awards-grid');
+                aw.innerHTML = '';
+                if (data.superlatives.length === 0) {
+                    aw.innerHTML = '<div class="col-span-2 text-4xl text-gray-500 italic flex items-center justify-center h-full mt-20">Start pouring to unlock awards!</div>';
+                } else {
+                    data.superlatives.forEach(s => {
+                        aw.innerHTML += `
+                            <div class="bg-gray-800 border-4 border-yellow-600 rounded-3xl p-6 shadow-xl flex items-center gap-6">
+                                <div class="text-7xl">${s.emoji}</div>
+                                <div class="flex-1 overflow-hidden">
+                                    <h3 class="text-3xl font-black text-yellow-400 uppercase tracking-widest">${s.title}</h3>
+                                    <p class="text-5xl font-bold text-white mt-2 truncate">${s.name}</p>
+                                    <p class="text-2xl text-gray-400 italic mt-2">${s.desc}</p>
+                                </div>
+                            </div>
+                        `;
+                    });
+                }
+
+                let shameText = "🍾 BAR IS OPEN! NO OFFENSES YET.";
+                if (data.wall_of_shame.cut_offs.length > 0 || data.wall_of_shame.rejects.length > 0) {
+                    let items = [];
+                    data.wall_of_shame.cut_offs.forEach(name => items.push(`🚫 CUT OFF: ${name} 🚫`));
+                    data.wall_of_shame.rejects.forEach(r => items.push(`❌ REJECTED - ${r.name}: "${r.reason}"`));
+                    shameText = items.join(" ••• ");
+                    shameText = shameText + " ••• " + shameText + " ••• " + shameText; 
+                }
+                document.getElementById('shame-ticker').innerText = shameText;
+            });
+        }
+
+        loadDashboardData();
+        setInterval(loadDashboardData, 3000);
+        setInterval(updateCycleUI, 8000);
+    </script>
+</body>
+</html>

@@ -1,0 +1,9 @@
+# Ignore the live database
+bar_pos.db
+
+# Ignore Python cache
+__pycache__/
+*.pyc
+
+# Ignore environment variables if you use them later
+.env

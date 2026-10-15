@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Basement Bar Menu</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="text-white p-4 font-sans antialiased bg-gray-900 transition-colors duration-1000">
+    
+    <div class="hidden bg-gradient-to-b to-gray-900 from-gray-900 from-blue-900 from-yellow-900 from-orange-900 from-red-900"></div>
+
+    <div class="max-w-md mx-auto mt-6 pb-12">
+        <h1 id="greeting" class="text-3xl font-bold text-center mb-8 text-blue-400"></h1>
+        
+        <div id="menu-list" class="space-y-4"></div>
+
+        <div class="mt-10 bg-gray-800 p-5 rounded-xl shadow-lg border border-gray-700">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-xl font-bold text-purple-400">My Order History</h2>
+                <input type="date" id="history-date" onchange="loadMyHistory()" class="bg-gray-700 text-white rounded px-2 py-1 text-sm border border-gray-600 focus:outline-none focus:border-purple-500">
+            </div>
+            <div id="my-history-list" class="space-y-2"></div>
+        </div>
+    </div>
+
+    <script>
+        let deviceId = localStorage.getItem('bar_device_id');
+        if (!deviceId) {
+            deviceId = 'guest-' + Math.random().toString(36).substr(2, 9);
+            localStorage.setItem('bar_device_id', deviceId);
+        }
+
+        let guestName = localStorage.getItem('bar_guest_name');
+        if (!guestName) {
+            guestName = prompt("Welcome to the Basement Bar! What's your name?");
+            if (!guestName || guestName.trim() === "") guestName = "Thirsty Guest";
+            localStorage.setItem('bar_guest_name', guestName);
+        }
+        
+        function updateGreeting() {
+            document.getElementById('greeting').innerHTML = `🏈 What are you having, <span class="border-b-2 border-dashed border-gray-500 cursor-pointer hover:text-white transition" onclick="editMyName()" title="Tap to change your name">${guestName}</span>?`;
+        }
+        updateGreeting();
+
+        function editMyName() {
+            let newName = prompt("Enter your new name:", guestName);
+            if (newName && newName.trim() !== "" && newName !== guestName) {
+                guestName = newName.trim();
+                localStorage.setItem('bar_guest_name', guestName);
+                updateGreeting();
+                fetch(`/api/guest/${deviceId}/name`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ new_name: guestName })
+                });
+            }
+        }
+
+        let drinkCount = 0;
+
+        function loadMenu() {
+            fetch('/menu').then(res => res.json()).then(data => {
+                const menuList = document.getElementById('menu-list');
+                menuList.innerHTML = '';
+                data.menu.forEach(drink => {
+                    let bgClass = 'bg-gray-800';
+                    let borderClass = 'border-gray-700';
+                    let textClass = 'text-blue-400';
+                    let badgeClass = 'bg-gray-700 text-gray-300';
+
+                    if (drink.category === 'Beer') { 
+                        bgClass = 'bg-yellow-900/40'; borderClass = 'border-yellow-700'; textClass = 'text-yellow-400'; badgeClass = 'bg-yellow-800 text-yellow-200';
+                    } else if (drink.category === 'Wine') { 
+                        bgClass = 'bg-rose-900/40'; borderClass = 'border-rose-700'; textClass = 'text-rose-400'; badgeClass = 'bg-rose-800 text-rose-200';
+                    } else if (drink.category === 'Cocktail') { 
+                        bgClass = 'bg-indigo-900/40'; borderClass = 'border-indigo-700'; textClass = 'text-indigo-400'; badgeClass = 'bg-indigo-800 text-indigo-200';
+                    } else if (drink.category === 'Shot') { 
+                        bgClass = 'bg-red-900/40'; borderClass = 'border-red-700'; textClass = 'text-red-400'; badgeClass = 'bg-red-800 text-red-200';
+                    }
+
+                    let details = [];
+                    if (drink.abv) details.push(`💧 ${drink.abv}`);
+                    if (drink.calories) details.push(`🔥 ${drink.calories} cal`);
+                    let detailsHtml = details.length > 0 ? `<div class="text-xs text-gray-300 mt-2 space-x-3 font-semibold"><span>${details.join('</span><span>')}</span></div>` : '';
+                    let notesHtml = drink.notes ? `<p class="text-xs text-gray-400 mt-1 italic leading-tight">${drink.notes}</p>` : '';
+
+                    menuList.innerHTML += `
+                        <div class="${bgClass} p-4 rounded-xl shadow-lg flex justify-between items-center border ${borderClass}">
+                            <div class="flex-1 pr-4">
+                                <h2 class="text-lg font-bold ${textClass}">${drink.item_name}</h2>
+                                <span class="inline-block mt-1 text-[10px] uppercase tracking-wider px-2 py-0.5 rounded-full ${badgeClass}">${drink.category}</span>
+                                ${detailsHtml}
+                                ${notesHtml}
+                                <div class="mt-2">
+                                    <button onclick="document.getElementById('note-container-${drink.id}').classList.toggle('hidden')" class="text-[11px] text-gray-400 hover:text-white underline outline-none">Add note for bartender...</button>
+                                    <div id="note-container-${drink.id}" class="hidden mt-1">
+                                        <input type="text" id="note-input-${drink.id}" placeholder="e.g. Extra lime, light ice..." class="bg-gray-800/80 text-white text-xs rounded px-2 py-1.5 w-full border border-gray-600 focus:outline-none focus:border-blue-500">
+                                    </div>
+                                </div>
+                            </div>
+                            <button onclick="placeOrder(${drink.id}, '${drink.item_name.replace(/'/g, "\\'")}')" class="bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-lg font-semibold transition active:scale-95 shrink-0 self-center">
+                                Order
+                            </button>
+                        </div>
+                    `;
+                });
+
+                // --- UPDATED: Replaced Custom Entry prompt with an inline form ---
+                menuList.innerHTML += `
+                    <div class="bg-gray-800 p-4 rounded-xl shadow-lg border border-gray-600 border-dashed">
+                        <div class="flex justify-between items-center">
+                            <div>
+                                <h2 class="text-lg font-bold text-gray-300">Something else?</h2>
+                                <span class="text-xs text-gray-400 uppercase tracking-wider">Custom Entry</span>
+                            </div>
+                            <button onclick="document.getElementById('custom-form').classList.toggle('hidden')" class="bg-gray-600 hover:bg-gray-500 text-white px-4 py-2 rounded-lg font-semibold transition active:scale-95 shrink-0">
+                                Custom
+                            </button>
+                        </div>
+                        <div id="custom-form" class="hidden mt-4 pt-4 border-t border-gray-700 flex flex-col gap-3">
+                            <input type="text" id="custom-name" placeholder="Drink Name (Required)" class="bg-gray-900 text-white text-sm rounded px-3 py-2 border border-gray-600 focus:outline-none focus:border-blue-500 w-full">
+                            <div class="flex gap-2">
+                                <input type="text" id="custom-abv" placeholder="ABV (e.g. 5%)" class="bg-gray-900 text-white text-sm rounded px-3 py-2 border border-gray-600 focus:outline-none focus:border-blue-500 w-1/2">
+                                <input type="text" id="custom-cal" placeholder="Calories" class="bg-gray-900 text-white text-sm rounded px-3 py-2 border border-gray-600 focus:outline-none focus:border-blue-500 w-1/2">
+                            </div>
+                            <input type="text" id="custom-note" placeholder="Note for bartender (Optional)" class="bg-gray-900 text-white text-sm rounded px-3 py-2 border border-gray-600 focus:outline-none focus:border-blue-500 w-full">
+                            <button onclick="submitCustomOrder()" class="bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-lg font-bold transition active:scale-95 mt-1 w-full shadow-lg">Send Custom Order</button>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        function updateBackgroundGradient(count) {
+            const body = document.body;
+            body.classList.remove('bg-gray-900', 'from-gray-900', 'from-blue-900', 'from-yellow-900', 'from-orange-900', 'from-red-900');
+            body.classList.add('bg-gradient-to-b', 'to-gray-900');
+            
+            if (count <= 1) {
+                body.classList.add('from-gray-900');
+            } else if (count === 2 || count === 3) {
+                body.classList.add('from-blue-900');
+            } else if (count === 4 || count === 5) {
+                body.classList.add('from-yellow-900');
+            } else if (count >= 6) {
+                body.classList.add('from-red-900');
+            }
+        }
+
+        function loadMyHistory() {
+            let dateFilter = document.getElementById('history-date').value;
+            let url = `/api/guest/${deviceId}/history`;
+            if (dateFilter) url += `?date=${dateFilter}`;
+
+            fetch(url).then(res => res.json()).then(data => {
+                if (data.status === "deleted") {
+                    if (localStorage.getItem('bar_has_ordered') === 'true') {
+                        localStorage.removeItem('bar_device_id');
+                        localStorage.removeItem('bar_guest_name');
+                        localStorage.removeItem('bar_has_ordered');
+                        location.reload(); 
+                        return;
+                    }
+                    document.getElementById('my-history-list').innerHTML = '<p class="text-gray-500 italic text-center text-sm">You haven\'t ordered anything yet.</p>';
+                    drinkCount = 0;
+                    updateBackgroundGradient(0);
+                    return;
+                }
+
+                const list = document.getElementById('my-history-list');
+                list.innerHTML = '';
+                
+                drinkCount = data.today_count || 0;
+                updateBackgroundGradient(drinkCount);
+
+                if (data.history.length === 0) {
+                    list.innerHTML = '<p class="text-gray-500 italic text-center text-sm">No orders found.</p>';
+                    return;
+                }
+                
+                data.history.forEach(order => {
+                    let statusTag = '';
+                    let textStyle = 'text-gray-200';
+                    
+                    if (order.status === 'rejected') {
+                        textStyle = 'text-gray-500 line-through';
+                        let reason = order.reject_reason ? ` - ${order.reject_reason}` : '';
+                        statusTag = `<span class="text-red-400 text-xs font-bold ml-2">(Rejected${reason})</span>`;
+                    }
+                    
+                    list.innerHTML += `
+                        <div class="flex justify-between items-center border-b border-gray-700 py-2 last:border-0">
+                            <span class="${textStyle}">${order.item_name} ${statusTag}</span>
+                            <span class="text-xs text-gray-400">${order.time}</span>
+                        </div>
+                    `;
+                });
+            });
+        }
+
+        function verifyWaterCheck() {
+            if (drinkCount >= 4) {
+                return confirm(`🚰 Water Check!\n\nYou've already ordered ${drinkCount} drinks tonight.\n\nAre you sure you want to order this, or should you grab a water instead?\n\n• Click OK to order anyway.\n• Click Cancel to go get some water.`);
+            }
+            return true;
+        }
+
+        function processResponse(resData, itemName) {
+            if (resData.status === "error") {
+                alert(`🚫 ${resData.message}`);
+            } else {
+                localStorage.setItem('bar_has_ordered', 'true');
+                alert(`✅ Order sent! Your ${itemName} is logged.`);
+                loadMyHistory();
+                
+                document.querySelectorAll('input[type="text"]').forEach(input => input.value = '');
+                document.querySelectorAll('input[type="number"]').forEach(input => input.value = '');
+                document.querySelectorAll('[id^="note-container-"]').forEach(div => div.classList.add('hidden'));
+                
+                let customForm = document.getElementById('custom-form');
+                if (customForm) customForm.classList.add('hidden');
+            }
+        }
+
+        function placeOrder(menuId, itemName) {
+            if (!verifyWaterCheck()) return;
+            
+            let noteInput = document.getElementById('note-input-' + menuId);
+            let orderNote = noteInput && noteInput.value.trim() !== "" ? noteInput.value.trim() : null;
+
+            fetch('/order', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ guest_name: guestName, menu_id: menuId, device_id: deviceId, custom_item: null, order_note: orderNote })
+            }).then(res => res.json()).then(data => processResponse(data, itemName));
+        }
+
+        // --- NEW: Sends the custom ABV and Calories if provided ---
+        function submitCustomOrder() {
+            if (!verifyWaterCheck()) return;
+
+            const nameInput = document.getElementById('custom-name').value.trim();
+            if (!nameInput) {
+                alert("Please enter a drink name!");
+                return;
+            }
+            
+            const abvInput = document.getElementById('custom-abv').value.trim() || null;
+            const calInput = document.getElementById('custom-cal').value.trim() || null;
+            const noteInput = document.getElementById('custom-note').value.trim() || null;
+
+            fetch('/order', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ 
+                    guest_name: guestName, 
+                    menu_id: null, 
+                    device_id: deviceId, 
+                    custom_item: nameInput, 
+                    order_note: noteInput,
+                    custom_abv: abvInput,
+                    custom_calories: calInput
+                })
+            }).then(res => res.json()).then(data => processResponse(data, nameInput));
+        }
+
+        loadMenu();
+        loadMyHistory();
+        setInterval(loadMyHistory, 5000);
+    </script>
+</body>
+</html>
