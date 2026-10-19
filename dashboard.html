@@ -6,21 +6,46 @@
     <title>Bar Display</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        @keyframes marquee { 0% { transform: translateX(100%); } 100% { transform: translateX(-100%); } }
-        .animate-marquee { display: inline-block; animation: marquee 25s linear infinite; }
+        :root {
+            --bg-body: #111827; 
+            --bg-panel: #1f2937;
+            --border-panel: #374151;
+        }
+        .theme-bills {
+            --bg-body: #002244; 
+            --bg-panel: rgba(0, 51, 141, 0.6); 
+            --border-panel: #c60c30;
+        }
+        .theme-sabres {
+            --bg-body: #001f3f;
+            --bg-panel: rgba(0, 38, 84, 0.8);
+            --border-panel: #fcb514;
+        }
+        
+        body { transition: background-color 1s ease-in-out; }
+        body.theme-active { background-color: var(--bg-body) !important; }
+        
+        .themed-panel { transition: all 1s ease-in-out; }
+        .theme-active .themed-panel { 
+            background-color: var(--bg-panel) !important; 
+            border-color: var(--border-panel) !important; 
+        }
+
+        @keyframes marquee { 0% { transform: translateX(100vw); } 100% { transform: translateX(-100%); } }
+        .animate-marquee { display: inline-block; white-space: nowrap; animation-name: marquee; animation-timing-function: linear; animation-iteration-count: infinite; }
+        
         @keyframes progress { 0% { width: 0%; } 100% { width: 100%; } }
         .animate-progress { animation: progress 15s linear infinite; }
         
-        /* --- NEW: High-Energy Celebration Animations --- */
         @keyframes flashGoal {
-            0%, 100% { background-color: #1e3a8a; } /* Deep Blue */
-            50% { background-color: #ca8a04; } /* Sabres Yellow */
+            0%, 100% { background-color: #1e3a8a; } 
+            50% { background-color: #ca8a04; } 
         }
         .animate-flash-goal { animation: flashGoal 0.5s infinite; }
 
         @keyframes flashTd {
-            0%, 100% { background-color: #991b1b; } /* Deep Red */
-            50% { background-color: #1e40af; } /* Bills Blue */
+            0%, 100% { background-color: #991b1b; } 
+            50% { background-color: #1e40af; } 
         }
         .animate-flash-td { animation: flashTd 0.5s infinite; }
 
@@ -35,17 +60,20 @@
             to { transform: rotate(360deg); }
         }
         .animate-spin-slow { animation: spinSlow 3s linear infinite; }
+        
+        /* --- NEW: Party Mode Overflow Animation --- */
+        @keyframes partyLiquid {
+            0% { filter: hue-rotate(0deg); }
+            100% { filter: hue-rotate(360deg); }
+        }
+        .animate-party-liquid { animation: partyLiquid 2s linear infinite; }
     </style>
 </head>
 <body class="bg-gray-900 text-white h-screen w-screen overflow-hidden flex flex-col font-sans relative">
     
-    <!-- Fullscreen Goal/Event Hijack Overlay -->
-    <div id="event-overlay" class="absolute inset-0 z-50 hidden opacity-0 transition-opacity duration-300 flex items-center justify-center">
-        <!-- Dynamic background and text injected here -->
-    </div>
+    <div id="event-overlay" class="absolute inset-0 z-50 hidden opacity-0 transition-opacity duration-300 flex items-center justify-center"></div>
 
-    <!-- Header & Loading Bar -->
-    <div class="bg-gray-800 shrink-0 z-20 shadow-xl flex flex-col relative">
+    <div class="bg-gray-800 shrink-0 z-20 shadow-xl flex flex-col relative themed-panel">
         <div class="p-6 text-center">
             <h1 class="text-6xl font-black text-blue-400 tracking-widest uppercase flex items-center justify-center gap-6">
                 🏒 Basement Bar 🏈
@@ -61,20 +89,20 @@
     <div class="flex-1 relative overflow-hidden bg-black">
         
         <div id="view-board" class="absolute inset-0 flex flex-col gap-6 p-6 opacity-100 transition-opacity duration-1000 z-10">
-            <div class="flex-[3] bg-gray-800 rounded-3xl p-6 border-4 border-green-500 shadow-[0_0_40px_rgba(34,197,94,0.3)] flex flex-col overflow-hidden relative">
+            <div class="flex-[3] bg-gray-800 rounded-3xl p-6 border-4 border-green-500 shadow-[0_0_40px_rgba(34,197,94,0.3)] flex flex-col overflow-hidden relative themed-panel">
                 <h2 class="text-4xl font-black text-green-400 mb-4 uppercase tracking-widest border-b-4 border-gray-700 pb-2 shrink-0">Now Pouring</h2>
                 <div id="queue" class="flex-1 flex flex-col gap-3 justify-start overflow-hidden"></div>
             </div>
-            <div class="flex-[4] bg-gray-800 rounded-3xl p-8 border-4 border-blue-500 shadow-[0_0_30px_rgba(59,130,246,0.2)] flex flex-col overflow-hidden relative">
+            <div class="flex-[4] bg-gray-800 rounded-3xl p-8 border-4 border-blue-500 shadow-[0_0_30px_rgba(59,130,246,0.2)] flex flex-col overflow-hidden relative themed-panel">
                 <h2 class="text-4xl font-black text-blue-400 mb-6 uppercase tracking-widest border-b-4 border-gray-700 pb-4 shrink-0">📅 Tonight's Tab</h2>
                 <div id="tonight-tab" class="flex-1 flex flex-col justify-between"></div>
             </div>
-            <div id="cycling-container" class="flex-[5] bg-gray-800 rounded-3xl p-8 border-4 border-yellow-500 shadow-[0_0_30px_rgba(234,179,8,0.2)] flex flex-col overflow-hidden relative transition-all duration-500 opacity-100"></div>
+            <div id="cycling-container" class="flex-[5] bg-gray-800 rounded-3xl p-8 border-4 border-yellow-500 shadow-[0_0_30px_rgba(234,179,8,0.2)] flex flex-col overflow-hidden relative transition-all duration-500 opacity-100 themed-panel"></div>
         </div>
 
-        <div id="view-liquid" class="absolute inset-0 flex flex-col items-center justify-center p-8 opacity-0 pointer-events-none transition-opacity duration-1000 z-10 bg-gray-900">
-            <h2 class="text-6xl font-black text-blue-400 tracking-widest uppercase mb-12">The Liquid Diet</h2>
-            <div class="relative w-2/3 h-2/3 border-[16px] border-gray-600 rounded-b-[60px] border-t-0 flex flex-col justify-end overflow-hidden shadow-[0_0_80px_rgba(59,130,246,0.2)]">
+        <div id="view-liquid" class="absolute inset-0 flex flex-col items-center justify-center p-8 opacity-0 pointer-events-none transition-opacity duration-1000 z-10 bg-gray-900 themed-panel">
+            <h2 id="liquid-title" class="text-6xl font-black text-blue-400 tracking-widest uppercase mb-12">The Liquid Diet</h2>
+            <div id="liquid-container" class="relative w-2/3 h-2/3 border-[16px] border-gray-600 rounded-b-[60px] border-t-0 flex flex-col justify-end overflow-hidden shadow-[0_0_80px_rgba(59,130,246,0.2)] transition-all duration-500">
                 <div id="liquid-fill" class="bg-blue-600 w-full transition-all duration-[3000ms] ease-in-out relative flex flex-col items-center justify-center" style="height: 0%">
                     <div class="absolute top-0 w-full h-6 bg-blue-400/50"></div>
                     <div class="absolute inset-0 bg-gradient-to-t from-blue-800 to-transparent"></div>
@@ -86,22 +114,80 @@
             </div>
         </div>
 
-        <div id="view-awards" class="absolute inset-0 flex flex-col p-8 opacity-0 pointer-events-none transition-opacity duration-1000 z-10 bg-gray-900">
+        <div id="view-awards" class="absolute inset-0 flex flex-col p-8 opacity-0 pointer-events-none transition-opacity duration-1000 z-10 bg-gray-900 themed-panel">
             <h2 class="text-6xl font-black text-yellow-400 tracking-widest uppercase mb-12 text-center">🏆 Game Day Awards 🏆</h2>
             <div id="awards-grid" class="flex-1 grid grid-cols-2 gap-8 content-start"></div>
+        </div>
+
+        <div id="view-qrcode" class="absolute inset-0 flex flex-col p-8 opacity-0 pointer-events-none transition-opacity duration-1000 z-10 bg-gray-900 themed-panel gap-8 items-center justify-center">
+            <div class="flex-1 flex flex-col items-center justify-center border-b-4 border-gray-700/50 pb-8 w-full">
+                <h2 class="text-6xl font-black text-blue-400 tracking-widest uppercase mb-10">Scan to Order</h2>
+                <div class="bg-white p-6 rounded-[40px] shadow-[0_0_80px_rgba(59,130,246,0.3)]">
+                    <img src="/qrcode_mafiabasementbar.com.png" alt="QR Code" class="w-[450px] h-[450px] object-contain rounded-2xl">
+                </div>
+                <p class="text-4xl font-bold text-gray-300 mt-10 uppercase tracking-widest">mafiabasementbar.com</p>
+            </div>
+            <div class="flex-1 flex flex-col items-center justify-center pt-4 w-full">
+                <h2 class="text-6xl font-black text-yellow-400 tracking-widest uppercase mb-10 text-center">Daily Passcode</h2>
+                <div class="bg-gray-800 p-12 rounded-[40px] border-4 border-yellow-500 shadow-[0_0_80px_rgba(234,179,8,0.2)] w-[90%] max-w-2xl flex items-center justify-center min-h-[300px]">
+                    <p id="display-passcode" class="text-8xl font-black text-white tracking-widest uppercase break-all text-center">...</p>
+                </div>
+                <p class="text-3xl font-bold text-gray-400 mt-10 text-center px-12">Enter this code on your phone to unlock the menu.</p>
+            </div>
         </div>
 
     </div>
 
     <div class="h-16 bg-red-950 border-t-[6px] border-red-700 flex items-center overflow-hidden shrink-0 relative z-20">
         <div class="absolute left-0 bg-red-700 h-full flex items-center px-4 z-30 font-black text-2xl tracking-widest border-r-4 border-red-900 shadow-xl">🚨 WALL OF SHAME</div>
-        <div id="shame-ticker" class="whitespace-nowrap text-3xl font-black text-red-300 tracking-widest uppercase animate-marquee pl-[300px]"></div>
+        <div class="flex-1 relative h-full flex items-center w-full pl-[250px]">
+            <div id="shame-ticker" class="absolute text-3xl font-black text-red-300 tracking-widest uppercase animate-marquee"></div>
+        </div>
     </div>
 
     <script>
         let currentView = 1; 
         let cycleState = 'leaderboard';
         let statsCache = { all_time: [], popular: [] };
+        let currentTeam = 'none';
+
+        function fetchPasscode() {
+            fetch('/api/settings/code').then(r => r.json()).then(data => {
+                const el = document.getElementById('display-passcode');
+                if (data.code && data.code.trim() !== '') {
+                    el.innerText = data.code;
+                    el.className = "text-8xl font-black text-white tracking-widest uppercase break-all text-center";
+                } else {
+                    el.innerText = "OPEN";
+                    el.className = "text-8xl font-black text-green-400 tracking-widest uppercase break-all text-center";
+                }
+            }).catch(e => {});
+        }
+        setInterval(fetchPasscode, 5000);
+        fetchPasscode();
+
+        function fetchCurrentEvent() {
+            fetch('/api/event/current').then(r => r.json()).then(data => {
+                if (data.team && data.team !== currentTeam) {
+                    currentTeam = data.team;
+                    applyTheme(currentTeam);
+                }
+            }).catch(e => {});
+        }
+        setInterval(fetchCurrentEvent, 5000);
+        fetchCurrentEvent(); 
+
+        function applyTheme(team) {
+            if (team === 'bills') {
+                document.body.classList.add('theme-active', 'theme-bills');
+                document.body.classList.remove('theme-sabres');
+            } else if (team === 'sabres') {
+                document.body.classList.add('theme-active', 'theme-sabres');
+                document.body.classList.remove('theme-bills');
+            } else {
+                document.body.classList.remove('theme-active', 'theme-bills', 'theme-sabres');
+            }
+        }
 
         let currentEventId = null;
         setInterval(() => {
@@ -147,7 +233,7 @@
         }, 1000);
 
         function rotateViews() {
-            const views = ['view-board', 'view-liquid', 'view-awards'];
+            const views = ['view-board', 'view-liquid', 'view-awards', 'view-qrcode'];
             views.forEach((id, index) => {
                 const el = document.getElementById(id);
                 if (index === currentView) {
@@ -179,7 +265,7 @@
                     }
                     html += '</div>';
                     container.innerHTML = html;
-                    container.className = "flex-[5] bg-gray-800 rounded-3xl p-8 border-4 border-yellow-500 shadow-[0_0_30px_rgba(234,179,8,0.2)] flex flex-col overflow-hidden relative transition-all duration-500";
+                    container.className = "flex-[5] bg-gray-800 rounded-3xl p-8 border-4 border-yellow-500 shadow-[0_0_30px_rgba(234,179,8,0.2)] flex flex-col overflow-hidden relative transition-all duration-500 opacity-100 themed-panel";
                     cycleState = 'popular';
                 } else {
                     let html = '<h2 class="text-4xl font-black text-purple-400 mb-6 uppercase tracking-widest border-b-4 border-gray-700 pb-4 shrink-0">🔥 All-Time Favorites</h2><div class="flex-1 flex flex-col justify-between">';
@@ -192,7 +278,7 @@
                     }
                     html += '</div>';
                     container.innerHTML = html;
-                    container.className = "flex-[5] bg-gray-800 rounded-3xl p-8 border-4 border-purple-500 shadow-[0_0_30px_rgba(168,85,247,0.2)] flex flex-col overflow-hidden relative transition-all duration-500";
+                    container.className = "flex-[5] bg-gray-800 rounded-3xl p-8 border-4 border-purple-500 shadow-[0_0_30px_rgba(168,85,247,0.2)] flex flex-col overflow-hidden relative transition-all duration-500 themed-panel";
                     cycleState = 'leaderboard';
                 }
                 container.style.opacity = '1';
@@ -229,12 +315,30 @@
                 statsCache.popular = data.popular;
                 if (document.getElementById('cycling-container').innerHTML.trim() === '') updateCycleUI();
 
+                let drinks = data.liquid_diet.total_drinks;
                 let cals = data.liquid_diet.total_cals;
                 document.getElementById('liquid-cals').innerText = cals.toLocaleString() + ' Cals';
                 document.getElementById('liquid-wings').innerText = `Equivalent to ~${Math.floor(cals / 100)} Bar Bill Wings 🍗`;
                 
-                let fillPct = Math.min(100, (data.liquid_diet.total_drinks / 30) * 100);
-                document.getElementById('liquid-fill').style.height = fillPct + '%';
+                let fillPct = Math.min(100, (drinks / 30) * 100);
+                let liquidFill = document.getElementById('liquid-fill');
+                let liquidContainer = document.getElementById('liquid-container');
+                let liquidTitle = document.getElementById('liquid-title');
+                
+                liquidFill.style.height = fillPct + '%';
+
+                // --- NEW: Party Mode Toggle ---
+                if (drinks >= 30) {
+                    liquidFill.classList.add('animate-party-liquid');
+                    liquidContainer.classList.add('animate-party-liquid');
+                    liquidTitle.innerHTML = "🚨 TANK OVERFLOW! 🚨";
+                    liquidTitle.className = "text-7xl font-black text-red-500 tracking-widest uppercase mb-12 animate-zoom-bounce drop-shadow-[0_0_20px_rgba(239,68,68,0.8)]";
+                } else {
+                    liquidFill.classList.remove('animate-party-liquid');
+                    liquidContainer.classList.remove('animate-party-liquid');
+                    liquidTitle.innerHTML = "The Liquid Diet";
+                    liquidTitle.className = "text-6xl font-black text-blue-400 tracking-widest uppercase mb-12 themed-text-1";
+                }
 
                 const aw = document.getElementById('awards-grid');
                 aw.innerHTML = '';
@@ -243,7 +347,7 @@
                 } else {
                     data.superlatives.forEach(s => {
                         aw.innerHTML += `
-                            <div class="bg-gray-800 border-4 border-yellow-600 rounded-3xl p-6 shadow-xl flex items-center gap-6">
+                            <div class="bg-gray-800 border-4 border-yellow-600 rounded-3xl p-6 shadow-xl flex items-center gap-6 themed-panel">
                                 <div class="text-7xl">${s.emoji}</div>
                                 <div class="flex-1 overflow-hidden">
                                     <h3 class="text-3xl font-black text-yellow-400 uppercase tracking-widest">${s.title}</h3>
@@ -256,14 +360,24 @@
                 }
 
                 let shameText = "🍾 BAR IS OPEN! NO OFFENSES YET.";
+                const ticker = document.getElementById('shame-ticker');
+                let itemCount = 1;
+                
                 if (data.wall_of_shame.cut_offs.length > 0 || data.wall_of_shame.rejects.length > 0) {
                     let items = [];
                     data.wall_of_shame.cut_offs.forEach(name => items.push(`🚫 CUT OFF: ${name} 🚫`));
                     data.wall_of_shame.rejects.forEach(r => items.push(`❌ REJECTED - ${r.name}: "${r.reason}"`));
-                    shameText = items.join(" ••• ");
+                    
+                    itemCount = items.length;
+                    shameText = items.join(" &nbsp;&nbsp;&nbsp;&nbsp;✦&nbsp;&nbsp;&nbsp;&nbsp; ");
+                } else {
                     shameText = shameText + " ••• " + shameText + " ••• " + shameText; 
                 }
-                document.getElementById('shame-ticker').innerText = shameText;
+                
+                ticker.innerHTML = shameText;
+                
+                let duration = Math.max(25, itemCount * 7);
+                ticker.style.animationDuration = `${duration}s`;
             });
         }
 

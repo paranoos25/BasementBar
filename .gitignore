@@ -7,3 +7,4 @@ __pycache__/
 
 # Ignore environment variables if you use them later
 .env
+bar_pos.db

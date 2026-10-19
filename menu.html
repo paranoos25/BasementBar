@@ -5,20 +5,81 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Basement Bar Menu</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        :root {
+            --bg-body: #111827; 
+            --bg-panel: #1f2937;
+            --border-panel: #374151;
+            --border-width: 1px;
+            --text-primary: #60a5fa; 
+            --text-secondary: #d1d5db; 
+            --text-tertiary: #c084fc; 
+        }
+        .theme-bills {
+            --bg-body: #002244; 
+            --bg-panel: rgba(0, 51, 141, 0.6); 
+            --border-panel: #c60c30;
+            --border-width: 2px;
+            --text-primary: #ffffff; 
+            --text-secondary: #ff4d4d; 
+            --text-tertiary: #ff4d4d; 
+        }
+        .theme-sabres {
+            --bg-body: #001f3f;
+            --bg-panel: rgba(0, 38, 84, 0.8);
+            --border-panel: #fcb514;
+            --border-width: 2px;
+            --text-primary: #ffffff; 
+            --text-secondary: #fcb514; 
+            --text-tertiary: #fcb514; 
+        }
+        body.theme-active { background-color: var(--bg-body) !important; background-image: none !important; }
+        .themed-panel { background-color: var(--bg-panel); border-color: var(--border-panel); border-width: var(--border-width); transition: all 1s ease-in-out; }
+        .themed-text-1 { color: var(--text-primary) !important; text-shadow: 0 2px 4px rgba(0,0,0,0.5); transition: color 1s; }
+        .themed-text-2 { color: var(--text-secondary) !important; transition: color 1s; }
+        .themed-text-3 { color: var(--text-tertiary) !important; transition: color 1s; }
+    </style>
 </head>
-<body class="text-white p-4 font-sans antialiased bg-gray-900 transition-colors duration-1000">
+<body class="text-white p-4 font-sans antialiased bg-gray-900 transition-colors duration-1000 min-h-screen relative">
     
+    <!-- --- NEW: Passcode Overlay --- -->
+    <div id="passcode-overlay" class="fixed inset-0 bg-gray-900 z-[100] flex flex-col items-center justify-center hidden">
+        <h1 class="text-4xl font-black text-blue-400 mb-6 uppercase tracking-widest text-center px-4">Basement Bar VIP</h1>
+        <div class="bg-gray-800 p-8 rounded-3xl border border-gray-700 shadow-2xl w-[90%] max-w-sm text-center">
+            <p class="text-gray-300 mb-6 text-lg">Enter the Daily Passcode to view the menu and place an order.</p>
+            <input type="text" id="guest-code-input" placeholder="PASSCODE" class="w-full bg-gray-900 text-white text-2xl font-black tracking-widest text-center rounded-xl px-4 py-4 border border-gray-600 focus:outline-none focus:border-blue-500 shadow-inner mb-6 uppercase">
+            <button onclick="verifyGuestCode()" class="w-full bg-blue-600 hover:bg-blue-500 text-white px-6 py-4 rounded-xl text-xl font-bold transition shadow-lg uppercase tracking-wider">Unlock</button>
+            <p id="code-error" class="text-red-400 mt-5 font-bold hidden bg-red-900/30 py-2 rounded-lg border border-red-800/50">Incorrect code. Nice try!</p>
+        </div>
+    </div>
+
     <div class="hidden bg-gradient-to-b to-gray-900 from-gray-900 from-blue-900 from-yellow-900 from-orange-900 from-red-900"></div>
 
     <div class="max-w-md mx-auto mt-6 pb-12">
-        <h1 id="greeting" class="text-3xl font-bold text-center mb-8 text-blue-400"></h1>
+        <h1 id="greeting" class="text-3xl font-bold text-center mb-6 text-blue-400 themed-text-1"></h1>
         
+        <div class="flex flex-col gap-4 mb-5 px-2">
+            <input type="text" id="search-input" oninput="renderMenu()" placeholder="Search drinks, categories, or flavors..." class="w-full bg-gray-800 text-white text-base rounded-xl px-4 py-3 border border-gray-600 focus:outline-none focus:border-blue-500 shadow-md placeholder-gray-400">
+            <div class="flex justify-between items-center">
+                <h2 class="text-xl font-bold text-gray-300 themed-text-2">Drink Menu</h2>
+                <select id="sort-selector" onchange="renderMenu()" class="bg-gray-800 text-gray-300 text-sm font-bold rounded-lg px-3 py-2 border border-gray-600 focus:outline-none focus:border-blue-500 shadow-sm cursor-pointer">
+                    <option value="default">Default Order</option>
+                    <option value="category">By Category</option>
+                    <option value="name_asc">Name (A-Z)</option>
+                    <option value="abv_desc">Highest ABV</option>
+                    <option value="abv_asc">Lowest ABV</option>
+                    <option value="cal_asc">Lowest Calories</option>
+                    <option value="cal_desc">Highest Calories</option>
+                </select>
+            </div>
+        </div>
+
         <div id="menu-list" class="space-y-4"></div>
 
-        <div class="mt-10 bg-gray-800 p-5 rounded-xl shadow-lg border border-gray-700">
+        <div class="mt-10 bg-gray-800 p-5 rounded-xl shadow-lg border border-gray-700 themed-panel">
             <div class="flex justify-between items-center mb-4">
-                <h2 class="text-xl font-bold text-purple-400">My Order History</h2>
-                <input type="date" id="history-date" onchange="loadMyHistory()" class="bg-gray-700 text-white rounded px-2 py-1 text-sm border border-gray-600 focus:outline-none focus:border-purple-500">
+                <h2 class="text-xl font-bold text-purple-400 themed-text-3">My Order History</h2>
+                <input type="date" id="history-date" onchange="loadMyHistory()" class="bg-gray-800 text-white rounded px-2 py-1 text-sm border border-gray-600 focus:outline-none">
             </div>
             <div id="my-history-list" class="space-y-2"></div>
         </div>
@@ -39,7 +100,7 @@
         }
         
         function updateGreeting() {
-            document.getElementById('greeting').innerHTML = `🏈 What are you having, <span class="border-b-2 border-dashed border-gray-500 cursor-pointer hover:text-white transition" onclick="editMyName()" title="Tap to change your name">${guestName}</span>?`;
+            document.getElementById('greeting').innerHTML = `🏈🏒 What are you having, <span class="border-b-2 border-dashed border-gray-400 cursor-pointer hover:text-white transition" onclick="editMyName()" title="Tap to change your name">${guestName}</span>?`;
         }
         updateGreeting();
 
@@ -53,86 +114,228 @@
                     method: 'PUT',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ new_name: guestName })
-                });
+                }).catch(e => console.log("Name update will sync on next order"));
             }
         }
 
         let drinkCount = 0;
+        let menuData = [];
+        let currentTeam = 'none';
 
-        function loadMenu() {
-            fetch('/menu').then(res => res.json()).then(data => {
-                const menuList = document.getElementById('menu-list');
-                menuList.innerHTML = '';
-                data.menu.forEach(drink => {
-                    let bgClass = 'bg-gray-800';
-                    let borderClass = 'border-gray-700';
-                    let textClass = 'text-blue-400';
-                    let badgeClass = 'bg-gray-700 text-gray-300';
-
-                    if (drink.category === 'Beer') { 
-                        bgClass = 'bg-yellow-900/40'; borderClass = 'border-yellow-700'; textClass = 'text-yellow-400'; badgeClass = 'bg-yellow-800 text-yellow-200';
-                    } else if (drink.category === 'Wine') { 
-                        bgClass = 'bg-rose-900/40'; borderClass = 'border-rose-700'; textClass = 'text-rose-400'; badgeClass = 'bg-rose-800 text-rose-200';
-                    } else if (drink.category === 'Cocktail') { 
-                        bgClass = 'bg-indigo-900/40'; borderClass = 'border-indigo-700'; textClass = 'text-indigo-400'; badgeClass = 'bg-indigo-800 text-indigo-200';
-                    } else if (drink.category === 'Shot') { 
-                        bgClass = 'bg-red-900/40'; borderClass = 'border-red-700'; textClass = 'text-red-400'; badgeClass = 'bg-red-800 text-red-200';
-                    }
-
-                    let details = [];
-                    if (drink.abv) details.push(`💧 ${drink.abv}`);
-                    if (drink.calories) details.push(`🔥 ${drink.calories} cal`);
-                    let detailsHtml = details.length > 0 ? `<div class="text-xs text-gray-300 mt-2 space-x-3 font-semibold"><span>${details.join('</span><span>')}</span></div>` : '';
-                    let notesHtml = drink.notes ? `<p class="text-xs text-gray-400 mt-1 italic leading-tight">${drink.notes}</p>` : '';
-
-                    menuList.innerHTML += `
-                        <div class="${bgClass} p-4 rounded-xl shadow-lg flex justify-between items-center border ${borderClass}">
-                            <div class="flex-1 pr-4">
-                                <h2 class="text-lg font-bold ${textClass}">${drink.item_name}</h2>
-                                <span class="inline-block mt-1 text-[10px] uppercase tracking-wider px-2 py-0.5 rounded-full ${badgeClass}">${drink.category}</span>
-                                ${detailsHtml}
-                                ${notesHtml}
-                                <div class="mt-2">
-                                    <button onclick="document.getElementById('note-container-${drink.id}').classList.toggle('hidden')" class="text-[11px] text-gray-400 hover:text-white underline outline-none">Add note for bartender...</button>
-                                    <div id="note-container-${drink.id}" class="hidden mt-1">
-                                        <input type="text" id="note-input-${drink.id}" placeholder="e.g. Extra lime, light ice..." class="bg-gray-800/80 text-white text-xs rounded px-2 py-1.5 w-full border border-gray-600 focus:outline-none focus:border-blue-500">
-                                    </div>
-                                </div>
-                            </div>
-                            <button onclick="placeOrder(${drink.id}, '${drink.item_name.replace(/'/g, "\\'")}')" class="bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-lg font-semibold transition active:scale-95 shrink-0 self-center">
-                                Order
-                            </button>
-                        </div>
-                    `;
-                });
-
-                // --- UPDATED: Replaced Custom Entry prompt with an inline form ---
-                menuList.innerHTML += `
-                    <div class="bg-gray-800 p-4 rounded-xl shadow-lg border border-gray-600 border-dashed">
-                        <div class="flex justify-between items-center">
-                            <div>
-                                <h2 class="text-lg font-bold text-gray-300">Something else?</h2>
-                                <span class="text-xs text-gray-400 uppercase tracking-wider">Custom Entry</span>
-                            </div>
-                            <button onclick="document.getElementById('custom-form').classList.toggle('hidden')" class="bg-gray-600 hover:bg-gray-500 text-white px-4 py-2 rounded-lg font-semibold transition active:scale-95 shrink-0">
-                                Custom
-                            </button>
-                        </div>
-                        <div id="custom-form" class="hidden mt-4 pt-4 border-t border-gray-700 flex flex-col gap-3">
-                            <input type="text" id="custom-name" placeholder="Drink Name (Required)" class="bg-gray-900 text-white text-sm rounded px-3 py-2 border border-gray-600 focus:outline-none focus:border-blue-500 w-full">
-                            <div class="flex gap-2">
-                                <input type="text" id="custom-abv" placeholder="ABV (e.g. 5%)" class="bg-gray-900 text-white text-sm rounded px-3 py-2 border border-gray-600 focus:outline-none focus:border-blue-500 w-1/2">
-                                <input type="text" id="custom-cal" placeholder="Calories" class="bg-gray-900 text-white text-sm rounded px-3 py-2 border border-gray-600 focus:outline-none focus:border-blue-500 w-1/2">
-                            </div>
-                            <input type="text" id="custom-note" placeholder="Note for bartender (Optional)" class="bg-gray-900 text-white text-sm rounded px-3 py-2 border border-gray-600 focus:outline-none focus:border-blue-500 w-full">
-                            <button onclick="submitCustomOrder()" class="bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-lg font-bold transition active:scale-95 mt-1 w-full shadow-lg">Send Custom Order</button>
-                        </div>
-                    </div>
-                `;
+        // --- NEW: Security Gatekeeper Logic ---
+        function checkCodeAccess() {
+            let savedCode = localStorage.getItem('bar_access_code') || '';
+            fetch('/api/verify_code', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({code: savedCode})
+            }).then(r=>r.json()).then(data => {
+                if (!data.valid) {
+                    document.getElementById('passcode-overlay').classList.remove('hidden');
+                } else {
+                    document.getElementById('passcode-overlay').classList.add('hidden');
+                    loadMenu();
+                    loadMyHistory();
+                }
             });
         }
 
+        function verifyGuestCode() {
+            let code = document.getElementById('guest-code-input').value.trim();
+            fetch('/api/verify_code', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({code: code})
+            }).then(r=>r.json()).then(data => {
+                if (data.valid) {
+                    localStorage.setItem('bar_access_code', code);
+                    document.getElementById('code-error').classList.add('hidden');
+                    document.getElementById('passcode-overlay').classList.add('hidden');
+                    loadMenu();
+                    loadMyHistory();
+                } else {
+                    document.getElementById('code-error').classList.remove('hidden');
+                }
+            });
+        }
+
+        function fetchCurrentEvent() {
+            fetch('/api/event/current').then(r => r.json()).then(data => {
+                if (data.team && data.team !== currentTeam) {
+                    currentTeam = data.team;
+                    applyTheme(currentTeam);
+                }
+            }).catch(e => {});
+        }
+        setInterval(fetchCurrentEvent, 5000);
+        fetchCurrentEvent(); 
+
+        function applyTheme(team) {
+            if (team === 'bills') {
+                document.body.classList.add('theme-active', 'theme-bills');
+                document.body.classList.remove('theme-sabres');
+            } else if (team === 'sabres') {
+                document.body.classList.add('theme-active', 'theme-sabres');
+                document.body.classList.remove('theme-bills');
+            } else {
+                document.body.classList.remove('theme-active', 'theme-bills', 'theme-sabres');
+                updateBackgroundGradient(drinkCount); 
+            }
+        }
+
+        function loadMenu() {
+            fetch('/menu').then(res => res.json()).then(data => {
+                menuData = data.menu;
+                renderMenu();
+            });
+        }
+
+        function renderMenu() {
+            const sortType = document.getElementById('sort-selector').value;
+            const searchTerm = document.getElementById('search-input').value.toLowerCase();
+            
+            let filteredData = menuData.filter(drink => {
+                return drink.item_name.toLowerCase().includes(searchTerm) || 
+                       drink.category.toLowerCase().includes(searchTerm) ||
+                       (drink.notes && drink.notes.toLowerCase().includes(searchTerm));
+            });
+
+            function extractNum(val) {
+                if (!val) return null;
+                let match = val.match(/[\d\.]+/);
+                return match ? parseFloat(match[0]) : null;
+            }
+
+            let sortedData = [...filteredData];
+            sortedData.sort((a, b) => {
+                if (sortType === 'name_asc') return a.item_name.localeCompare(b.item_name);
+                if (sortType === 'category') return a.category.localeCompare(b.category) || a.item_name.localeCompare(b.item_name);
+                
+                if (sortType === 'abv_desc') {
+                    let valA = extractNum(a.abv);
+                    let valB = extractNum(b.abv);
+                    if (valA === null && valB === null) return 0;
+                    if (valA === null) return 1; 
+                    if (valB === null) return -1;
+                    return valB - valA; 
+                }
+                
+                if (sortType === 'abv_asc') {
+                    let valA = extractNum(a.abv);
+                    let valB = extractNum(b.abv);
+                    if (valA === null && valB === null) return 0;
+                    if (valA === null) return 1; 
+                    if (valB === null) return -1;
+                    return valA - valB; 
+                }
+                
+                if (sortType === 'cal_asc') {
+                    let valA = extractNum(a.calories);
+                    let valB = extractNum(b.calories);
+                    if (valA === null && valB === null) return 0;
+                    if (valA === null) return 1; 
+                    if (valB === null) return -1;
+                    return valA - valB; 
+                }
+                
+                if (sortType === 'cal_desc') {
+                    let valA = extractNum(a.calories);
+                    let valB = extractNum(b.calories);
+                    if (valA === null && valB === null) return 0;
+                    if (valA === null) return 1; 
+                    if (valB === null) return -1;
+                    return valB - valA; 
+                }
+                
+                return a.id - b.id; 
+            });
+
+            const menuList = document.getElementById('menu-list');
+            menuList.innerHTML = '';
+            
+            if (sortedData.length === 0) {
+                menuList.innerHTML = '<p class="text-gray-500 italic text-center py-4">No drinks match your search.</p>';
+            }
+            
+            sortedData.forEach(drink => {
+                let bgClass = 'bg-gray-800';
+                let borderClass = 'border-gray-700';
+                let textClass = 'text-blue-400';
+                let badgeClass = 'bg-gray-700 text-gray-300';
+
+                if (drink.category === 'Beer') { 
+                    bgClass = 'bg-yellow-900/40'; borderClass = 'border-yellow-700'; textClass = 'text-yellow-400'; badgeClass = 'bg-yellow-800 text-yellow-200';
+                } else if (drink.category === 'Cider') { 
+                    bgClass = 'bg-amber-900/40'; borderClass = 'border-amber-700'; textClass = 'text-amber-400'; badgeClass = 'bg-amber-800 text-amber-200';
+                } else if (drink.category === 'Wine') { 
+                    bgClass = 'bg-rose-900/40'; borderClass = 'border-rose-700'; textClass = 'text-rose-400'; badgeClass = 'bg-rose-800 text-rose-200';
+                } else if (drink.category === 'Cocktail') { 
+                    bgClass = 'bg-indigo-900/40'; borderClass = 'border-indigo-700'; textClass = 'text-indigo-400'; badgeClass = 'bg-indigo-800 text-indigo-200';
+                } else if (drink.category === 'Shot') { 
+                    bgClass = 'bg-red-900/40'; borderClass = 'border-red-700'; textClass = 'text-red-400'; badgeClass = 'bg-red-800 text-red-200';
+                }
+
+                let containerBadge = '';
+                if (drink.container) {
+                    let icon = drink.container === 'Draft' ? '🍺 ' : drink.container === 'Can' ? '🥫 ' : drink.container === 'Bottle' ? '🍾 ' : '';
+                    containerBadge = `<span class="inline-block mt-1 ml-2 text-[10px] uppercase tracking-wider px-2 py-0.5 rounded-full bg-slate-800 text-slate-300 border border-slate-600">${icon}${drink.container}</span>`;
+                }
+
+                let details = [];
+                if (drink.abv) details.push(`💧 ${drink.abv}`);
+                if (drink.calories) details.push(`🔥 ${drink.calories} cal`);
+                let detailsHtml = details.length > 0 ? `<div class="text-xs text-gray-300 mt-2 space-x-3 font-semibold"><span>${details.join('</span><span>')}</span></div>` : '';
+                let notesHtml = drink.notes ? `<p class="text-xs text-gray-400 mt-1 italic leading-tight">${drink.notes}</p>` : '';
+
+                menuList.innerHTML += `
+                    <div class="${bgClass} p-4 rounded-xl shadow-lg flex justify-between items-center border ${borderClass}">
+                        <div class="flex-1 pr-4">
+                            <h2 class="text-lg font-bold ${textClass}">${drink.item_name}</h2>
+                            <span class="inline-block mt-1 text-[10px] uppercase tracking-wider px-2 py-0.5 rounded-full ${badgeClass}">${drink.category}</span>
+                            ${containerBadge}
+                            ${detailsHtml}
+                            ${notesHtml}
+                            <div class="mt-2">
+                                <button onclick="document.getElementById('note-container-${drink.id}').classList.toggle('hidden')" class="text-[11px] text-gray-400 hover:text-white underline outline-none">Add note for bartender...</button>
+                                <div id="note-container-${drink.id}" class="hidden mt-1">
+                                    <input type="text" id="note-input-${drink.id}" placeholder="e.g. Extra lime, light ice..." class="bg-gray-800/80 text-white text-xs rounded px-2 py-1.5 w-full border border-gray-600 focus:outline-none focus:border-blue-500">
+                                </div>
+                            </div>
+                        </div>
+                        <button onclick="placeOrder(${drink.id}, '${drink.item_name.replace(/'/g, "\\'")}')" class="bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-lg font-semibold transition active:scale-95 shrink-0 self-center">
+                            Order
+                        </button>
+                    </div>
+                `;
+            });
+
+            menuList.innerHTML += `
+                <div class="bg-gray-800 p-4 rounded-xl shadow-lg border border-gray-600 border-dashed mt-6 themed-panel">
+                    <div class="flex justify-between items-center">
+                        <div>
+                            <h2 class="text-lg font-bold text-gray-300">Something else?</h2>
+                            <span class="text-xs text-gray-400 uppercase tracking-wider">Custom Entry</span>
+                        </div>
+                        <button onclick="document.getElementById('custom-form').classList.toggle('hidden')" class="bg-gray-600 hover:bg-gray-500 text-white px-4 py-2 rounded-lg font-semibold transition active:scale-95 shrink-0 border border-gray-500">
+                            Custom
+                        </button>
+                    </div>
+                    <div id="custom-form" class="hidden mt-4 pt-4 border-t border-gray-700 flex flex-col gap-3">
+                        <input type="text" id="custom-name" placeholder="Drink Name (Required)" class="bg-gray-800 text-white text-sm rounded px-3 py-2 border border-gray-600 focus:outline-none w-full">
+                        <div class="flex gap-2">
+                            <input type="text" id="custom-abv" placeholder="ABV (e.g. 5%)" class="bg-gray-800 text-white text-sm rounded px-3 py-2 border border-gray-600 focus:outline-none w-1/2">
+                            <input type="text" id="custom-cal" placeholder="Calories" class="bg-gray-800 text-white text-sm rounded px-3 py-2 border border-gray-600 focus:outline-none w-1/2">
+                        </div>
+                        <input type="text" id="custom-note" placeholder="Note for bartender (Optional)" class="bg-gray-800 text-white text-sm rounded px-3 py-2 border border-gray-600 focus:outline-none w-full">
+                        <button onclick="submitCustomOrder()" class="bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-lg font-bold transition active:scale-95 mt-1 w-full shadow-lg">Send Custom Order</button>
+                    </div>
+                </div>
+            `;
+        }
+
         function updateBackgroundGradient(count) {
+            if (currentTeam !== 'none') return; 
+            
             const body = document.body;
             body.classList.remove('bg-gray-900', 'from-gray-900', 'from-blue-900', 'from-yellow-900', 'from-orange-900', 'from-red-900');
             body.classList.add('bg-gradient-to-b', 'to-gray-900');
@@ -150,8 +353,8 @@
 
         function loadMyHistory() {
             let dateFilter = document.getElementById('history-date').value;
-            let url = `/api/guest/${deviceId}/history`;
-            if (dateFilter) url += `?date=${dateFilter}`;
+            let url = `/api/guest/${deviceId}/history?guest_name=${encodeURIComponent(guestName)}`;
+            if (dateFilter) url += `&date=${dateFilter}`;
 
             fetch(url).then(res => res.json()).then(data => {
                 if (data.status === "deleted") {
@@ -190,7 +393,7 @@
                     }
                     
                     list.innerHTML += `
-                        <div class="flex justify-between items-center border-b border-gray-700 py-2 last:border-0">
+                        <div class="flex justify-between items-center border-b border-gray-700/50 py-2 last:border-0">
                             <span class="${textStyle}">${order.item_name} ${statusTag}</span>
                             <span class="text-xs text-gray-400">${order.time}</span>
                         </div>
@@ -209,17 +412,23 @@
         function processResponse(resData, itemName) {
             if (resData.status === "error") {
                 alert(`🚫 ${resData.message}`);
+                if (resData.message.includes("Invalid access code")) {
+                    checkCodeAccess(); 
+                }
             } else {
                 localStorage.setItem('bar_has_ordered', 'true');
                 alert(`✅ Order sent! Your ${itemName} is logged.`);
                 loadMyHistory();
                 
-                document.querySelectorAll('input[type="text"]').forEach(input => input.value = '');
+                document.querySelectorAll('input[type="text"]:not(#guest-code-input)').forEach(input => input.value = '');
                 document.querySelectorAll('input[type="number"]').forEach(input => input.value = '');
                 document.querySelectorAll('[id^="note-container-"]').forEach(div => div.classList.add('hidden'));
                 
                 let customForm = document.getElementById('custom-form');
                 if (customForm) customForm.classList.add('hidden');
+                
+                document.getElementById('search-input').value = '';
+                renderMenu();
             }
         }
 
@@ -228,15 +437,15 @@
             
             let noteInput = document.getElementById('note-input-' + menuId);
             let orderNote = noteInput && noteInput.value.trim() !== "" ? noteInput.value.trim() : null;
+            let activeCode = localStorage.getItem('bar_access_code') || '';
 
             fetch('/order', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ guest_name: guestName, menu_id: menuId, device_id: deviceId, custom_item: null, order_note: orderNote })
+                body: JSON.stringify({ guest_name: guestName, menu_id: menuId, device_id: deviceId, custom_item: null, order_note: orderNote, access_code: activeCode })
             }).then(res => res.json()).then(data => processResponse(data, itemName));
         }
 
-        // --- NEW: Sends the custom ABV and Calories if provided ---
         function submitCustomOrder() {
             if (!verifyWaterCheck()) return;
 
@@ -249,6 +458,7 @@
             const abvInput = document.getElementById('custom-abv').value.trim() || null;
             const calInput = document.getElementById('custom-cal').value.trim() || null;
             const noteInput = document.getElementById('custom-note').value.trim() || null;
+            let activeCode = localStorage.getItem('bar_access_code') || '';
 
             fetch('/order', {
                 method: 'POST',
@@ -260,14 +470,19 @@
                     custom_item: nameInput, 
                     order_note: noteInput,
                     custom_abv: abvInput,
-                    custom_calories: calInput
+                    custom_calories: calInput,
+                    access_code: activeCode
                 })
             }).then(res => res.json()).then(data => processResponse(data, nameInput));
         }
 
-        loadMenu();
-        loadMyHistory();
-        setInterval(loadMyHistory, 5000);
+        // Kick off by checking access instead of loading the menu directly
+        checkCodeAccess();
+        setInterval(() => {
+            if (document.getElementById('passcode-overlay').classList.contains('hidden')) {
+                loadMyHistory();
+            }
+        }, 5000);
     </script>
 </body>
 </html>
