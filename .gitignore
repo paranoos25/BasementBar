@@ -1,10 +1,14 @@
-# Ignore the live database
+# Ignore the live database and WAL files
 bar_pos.db
+bar_pos.db-wal
+bar_pos.db-shm
+*.db
 
-# Ignore Python cache
+# Ignore Python virtual environment and cache
+venv/
 __pycache__/
 *.pyc
 
-# Ignore environment variables if you use them later
+# Ignore environment variables and temporary files
 .env
-bar_pos.db
+*.rpm

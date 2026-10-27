@@ -7,143 +7,280 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         :root {
-            --bg-body: #111827; 
-            --bg-panel: #1f2937; 
-            --border-panel: #374151; 
+            --bg-body: #111827;
+            --bg-panel: #1f2937;
+            --border-panel: #374151;
             --border-width: 1px;
-            --text-accent-1: #4ade80; 
-            --text-accent-2: #60a5fa; 
-            --text-accent-3: #9ca3af; 
-            --text-accent-4: #c084fc; 
+            --text-accent-1: #4ade80;
+            --text-accent-2: #60a5fa;
+            --text-accent-3: #9ca3af;
+            --text-accent-4: #c084fc;
         }
         .theme-bills {
-            --bg-body: #002244; 
-            --bg-panel: rgba(0, 51, 141, 0.6); 
-            --border-panel: #c60c30; 
-            --border-width: 3px;
-            --text-accent-1: #ffffff; 
-            --text-accent-2: #ff4d4d; 
-            --text-accent-3: #ff4d4d; 
-            --text-accent-4: #ff4d4d; 
+            --bg-body: #002244;
+            --bg-panel: rgba(0, 51, 141, 0.6);
+            --border-panel: #c60c30;
+            --border-width: 2px;
+            --text-accent-1: #ffffff;
+            --text-accent-2: #ff4d4d;
+            --text-accent-3: #ff4d4d;
+            --text-accent-4: #ff4d4d;
         }
         .theme-sabres {
-            --bg-body: #001f3f; 
-            --bg-panel: rgba(0, 38, 84, 0.8); 
-            --border-panel: #fcb514; 
-            --border-width: 3px;
-            --text-accent-1: #ffffff; 
-            --text-accent-2: #fcb514; 
-            --text-accent-3: #fcb514; 
-            --text-accent-4: #fcb514; 
+            --bg-body: #001f3f;
+            --bg-panel: rgba(0, 38, 84, 0.8);
+            --border-panel: #fcb514;
+            --border-width: 2px;
+            --text-accent-1: #ffffff;
+            --text-accent-2: #fcb514;
+            --text-accent-3: #fcb514;
+            --text-accent-4: #fcb514;
+        }
+        .theme-bluejays {
+            --bg-body: #071324;
+            --bg-panel: rgba(9, 27, 51, 0.88);
+            --border-panel: #e8291c;
+            --border-width: 2px;
+            --text-accent-1: #ffffff;
+            --text-accent-2: #60a5fa;
+            --text-accent-3: #60a5fa;
+            --text-accent-4: #60a5fa;
+        }
+        .theme-christmas {
+            --bg-body: #072215;
+            --bg-panel: rgba(15, 56, 34, 0.88);
+            --border-panel: #dc2626;
+            --border-width: 2px;
+            --text-accent-1: #fef08a;
+            --text-accent-2: #f87171;
+            --text-accent-3: #86efac;
+            --text-accent-4: #fde047;
         }
         body { background-color: var(--bg-body) !important; transition: background-color 1s ease-in-out; }
-        .themed-panel { background-color: var(--bg-panel); border-color: var(--border-panel); border-width: var(--border-width); transition: all 1s ease-in-out; }
+        .themed-panel { background-color: var(--bg-panel) !important; border-color: var(--border-panel) !important; border-width: var(--border-width) !important; transition: all 1s ease-in-out; }
         .themed-title-1 { color: var(--text-accent-1) !important; transition: color 1s; }
         .themed-title-2 { color: var(--text-accent-2) !important; transition: color 1s; }
         .themed-title-3 { color: var(--text-accent-3) !important; transition: color 1s; }
         .themed-title-4 { color: var(--text-accent-4) !important; transition: color 1s; }
     </style>
 </head>
-<body class="text-white p-8 font-sans antialiased h-screen w-screen overflow-hidden flex flex-col text-lg">
-    
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 flex-1 min-h-0 overflow-hidden">
-        
-        <div class="lg:col-span-2 flex flex-col gap-8 h-full overflow-hidden">
-            
-            <div class="p-6 rounded-2xl flex-[2] flex flex-col overflow-hidden shadow-lg themed-panel">
-                <div class="flex justify-between items-center border-b border-gray-700/50 pb-4 mb-5 shrink-0">
-                    <div class="flex items-center">
-                        <h1 class="text-3xl font-bold themed-title-1 drop-shadow-md">Active Orders</h1>
-                        <span id="tunnel-badge" class="text-sm px-3 py-1 rounded-full bg-gray-800 text-gray-400 border border-gray-600 ml-4 whitespace-nowrap shadow-sm">🌐 Checking schedule...</span>
-                    </div>
-                    
-                    <div class="flex gap-3 items-center">
-                        <button onclick="fetch('/api/event/trigger/goal')" class="bg-blue-700 hover:bg-blue-600 text-white px-4 py-2 rounded-xl font-bold transition shadow-sm border border-blue-500">🚨 GOAL</button>
-                        <button onclick="fetch('/api/event/trigger/touchdown')" class="bg-red-700 hover:bg-red-600 text-white px-4 py-2 rounded-xl font-bold transition shadow-sm border border-red-500 mr-4">🚨 TOUCHDOWN</button>
+<body class="text-white p-4 lg:p-5 font-sans antialiased h-screen w-screen overflow-hidden flex flex-col text-base">
 
-                        <select id="bar-status" onchange="updateStatus('bar_status', this.value)" class="bg-gray-800 text-white px-3 py-2 rounded-xl border border-gray-600 font-bold focus:outline-none cursor-pointer">
-                            <option value="open">🟢 Bar Open</option>
-                            <option value="closed">🔴 Bar Closed</option>
-                        </select>
-                        <select id="tunnel-mode" onchange="updateStatus('tunnel_mode', this.value)" class="bg-gray-800 text-white px-3 py-2 rounded-xl border border-gray-600 font-bold focus:outline-none cursor-pointer">
-                            <option value="auto">🌐 Tunnel: Auto</option>
-                            <option value="on">🌐 Tunnel: Force ON</option>
-                            <option value="off">🌐 Tunnel: Force OFF</option>
-                        </select>
-                        <select id="sound-selector" onchange="localStorage.setItem('bar_sound_pref', this.value); if(isSoundOn) playNotification();" class="bg-gray-800 text-white px-3 py-2 rounded-xl border border-gray-600 font-bold focus:outline-none cursor-pointer shadow-sm">
-                            <option value="ding">Classic Ding</option>
-                            <option value="arcade">8-Bit Coin</option>
-                            <option value="levelup">Level Up</option>
-                            <option value="buzzer">Arena Buzzer</option>
-                            <option value="charge">Stadium Charge</option>
-                            <option value="train">Train Horn</option>
-                            <option value="random">🎲 Random Surprise</option>
-                        </select>
-                        <button id="sound-toggle" onclick="toggleSound()" class="bg-gray-800 hover:bg-gray-700 text-white px-5 py-2 rounded-xl font-bold transition shadow-sm border border-gray-600 w-44">🔇 Sound Off</button>
-                    </div>
-                </div>
-                <div id="order-queue" class="flex-1 overflow-y-auto grid grid-cols-1 md:grid-cols-2 gap-5 pr-3 content-start pb-4"></div>
+    <!-- Global Control Bar -->
+    <div class="flex flex-wrap justify-between items-center bg-gray-800 p-3.5 rounded-xl shadow-lg border border-gray-700 mb-4 shrink-0 themed-panel gap-3">
+        <div class="flex items-center gap-3 flex-wrap">
+            <h1 class="text-xl font-black text-blue-400 tracking-widest uppercase mr-1">Bartender</h1>
+            
+            <!-- View Switcher Tabs -->
+            <div class="flex bg-gray-900 p-1 rounded-xl border border-gray-700">
+                <button id="tab-btn-live" onclick="switchTab('live')" class="px-4 py-1.5 rounded-lg font-bold text-sm transition bg-blue-600 text-white shadow flex items-center gap-2">
+                    🍹 Live Bar
+                    <span id="nav-order-badge" class="hidden bg-red-500 text-white text-xs px-2 py-0.5 rounded-full font-black animate-pulse">0</span>
+                </button>
+                <button id="tab-btn-menu" onclick="switchTab('menu')" class="px-4 py-1.5 rounded-lg font-bold text-sm transition text-gray-400 hover:text-white flex items-center gap-2">
+                    📦 Menu & Inventory
+                    <span id="nav-menu-count" class="bg-gray-800 text-gray-300 text-xs px-2 py-0.5 rounded-full border border-gray-700">0</span>
+                </button>
             </div>
 
-            <div class="p-6 rounded-2xl flex-[3] flex flex-col overflow-hidden shadow-lg themed-panel">
-                <div class="flex justify-between items-center border-b border-gray-700/50 pb-4 mb-5 shrink-0">
-                    <h2 class="text-3xl font-bold themed-title-2 drop-shadow-md">Manage Menu</h2>
-                    <button onclick="openNewDrinkForm()" class="bg-blue-600 hover:bg-blue-500 text-white px-5 py-2 rounded-xl font-bold transition shadow-sm">➕ New Drink</button>
+            <span id="tunnel-badge" class="text-xs px-3 py-1 rounded-full bg-gray-900 text-gray-400 border border-gray-600 shadow-sm">🌐 Checking...</span>
+        </div>
+
+        <div class="flex flex-wrap items-center gap-2">
+            <button onclick="fetch('/api/event/trigger/goal')" class="bg-blue-700 hover:bg-blue-600 text-white px-3 py-2 rounded-lg font-bold transition shadow-sm border border-blue-500 text-sm">🚨 GOAL</button>
+            <button onclick="fetch('/api/event/trigger/touchdown'); fetch('https://api.connectedroom.io/buttons/3a466f04-1fbe-4e1b-90ae-04c32e2455dc?secret=CdKiqZZ7y0zQVNZxZ3L8EnDK1XUJaJbEAJsv0bc1uYpSlOZCwBudHzgksOEKcRa06Pnp4jiomkYnBy8UVVJJdV31jAeFIL8KTdIeWmoQR2YOSxHhg4NL2Oi2h5tEjkjw', {mode: 'no-cors'})" class="bg-red-700 hover:bg-red-600 text-white px-3 py-2 rounded-lg font-bold transition shadow-sm border border-red-500 text-sm">🚨 TOUCHDOWN</button>
+
+            <div class="hidden xl:block h-6 w-px bg-gray-600 mx-0.5"></div>
+
+            <select id="theme-mode" onchange="updateThemeMode(this.value)" class="bg-gray-900 text-white px-2.5 py-2 rounded-lg border border-gray-600 font-bold focus:outline-none text-sm cursor-pointer">
+                <option value="auto">🎨 Theme: Auto</option>
+                <option value="christmas">🎄 Xmas Party</option>
+                <option value="bills">🏈 Bills</option>
+                <option value="sabres">🏒 Sabres</option>
+                <option value="bluejays">⚾ Blue Jays</option>
+                <option value="none">🌙 Default Dark</option>
+            </select>
+
+            <select id="bar-status" onchange="updateStatus('bar_status', this.value)" class="bg-gray-900 text-white px-2.5 py-2 rounded-lg border border-gray-600 font-bold focus:outline-none text-sm cursor-pointer">
+                <option value="open">🟢 Bar Open</option>
+                <option value="closed">🔴 Bar Closed</option>
+            </select>
+            <select id="tunnel-mode" onchange="updateStatus('tunnel_mode', this.value)" class="bg-gray-900 text-white px-2.5 py-2 rounded-lg border border-gray-600 font-bold focus:outline-none text-sm cursor-pointer">
+                <option value="auto">🌐 Tunnel: Auto</option>
+                <option value="on">🌐 Tunnel: ON</option>
+                <option value="off">🌐 Tunnel: OFF</option>
+            </select>
+
+            <div class="hidden xl:block h-6 w-px bg-gray-600 mx-0.5"></div>
+
+            <select id="sound-selector" onchange="localStorage.setItem('bar_sound_pref', this.value); if(isSoundOn) playNotification();" class="bg-gray-900 text-white px-2.5 py-2 rounded-lg border border-gray-600 font-bold focus:outline-none text-sm cursor-pointer shadow-sm w-40">
+                <option value="ding">Classic Ding</option>
+                <option value="jingle">🎄 Jingle Bells</option>
+                <option value="sleigh">🔔 Sleigh Chimes</option>
+                <option value="arcade">8-Bit Coin</option>
+                <option value="levelup">Level Up</option>
+                <option value="buzzer">Arena Buzzer</option>
+                <option value="charge">Stadium Charge</option>
+                <option value="train">Train Horn</option>
+                <option value="random">🎲 Random</option>
+            </select>
+            <button id="sound-toggle" onclick="toggleSound()" class="bg-gray-900 hover:bg-gray-800 text-white px-3 py-2 rounded-lg font-bold transition shadow-sm border border-gray-600 text-sm w-28">🔇 Sound Off</button>
+        </div>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- TAB 1: LIVE BAR (ACTIVE ORDERS & GUESTS)   -->
+    <!-- ========================================== -->
+    <div id="view-live" class="grid grid-cols-1 lg:grid-cols-3 gap-6 flex-1 min-h-0 overflow-hidden">
+
+        <!-- Left Side: Full-Height Active Orders -->
+        <div class="lg:col-span-2 flex flex-col h-full overflow-hidden">
+            <div class="p-5 rounded-2xl flex-1 flex flex-col overflow-hidden shadow-lg themed-panel">
+                <div class="flex justify-between items-center border-b border-gray-700/50 pb-3 mb-4 shrink-0">
+                    <h2 class="text-2xl font-bold themed-title-1 drop-shadow-md">Active Orders</h2>
+                </div>
+                <div id="order-queue" class="flex-1 overflow-y-auto grid grid-cols-1 md:grid-cols-2 gap-4 pr-2 content-start pb-4"></div>
+            </div>
+        </div>
+
+        <!-- Right Side: Recent Pours and Guest Directory -->
+        <div class="flex flex-col gap-6 h-full overflow-hidden">
+
+            <!-- Recent Pours -->
+            <div class="p-5 rounded-2xl flex-1 flex flex-col overflow-hidden shadow-lg themed-panel">
+                <div class="flex justify-between items-center border-b border-gray-700/50 pb-3 mb-4 shrink-0">
+                    <h2 class="text-2xl font-bold themed-title-3 drop-shadow-md">Recent Pours</h2>
+                    <input type="date" id="global-history-date" onchange="loadDashboardData()" class="bg-gray-800 text-white rounded-md px-2 py-1.5 text-sm border border-gray-600 focus:outline-none cursor-pointer">
+                </div>
+                <div id="order-history" class="space-y-3 overflow-y-auto flex-1 pr-2 pb-2"></div>
+            </div>
+
+            <!-- Guest Directory -->
+            <div class="p-5 rounded-2xl flex-1 flex flex-col overflow-hidden shadow-lg themed-panel">
+                <div id="guest-box-title" class="flex justify-between items-center border-b border-gray-700/50 pb-3 mb-4 shrink-0">
+                    <h2 class="text-2xl font-bold themed-title-4 drop-shadow-md">Guest Directory</h2>
+                    <div class="flex items-center gap-2">
+                        <span class="text-xs text-gray-400 font-bold">Passcode:</span>
+                        <input type="text" id="daily-code-input" placeholder="Blank=Open" class="bg-gray-900 text-white border border-gray-600 rounded px-2 py-1 w-20 text-xs text-center focus:outline-none focus:border-blue-500 uppercase">
+                        <button onclick="updateDailyCode()" class="bg-purple-600 hover:bg-purple-500 px-3 py-1 rounded text-xs font-bold shadow transition">Save</button>
+                    </div>
+                </div>
+                <div id="guest-list-container" class="space-y-3 overflow-y-auto flex-1 pr-2 pb-2"></div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- ========================================== -->
+    <!-- TAB 2: MENU & INVENTORY MANAGER            -->
+    <!-- ========================================== -->
+    <div id="view-menu" class="hidden flex-1 min-h-0 flex-col overflow-hidden">
+        <div class="p-5 rounded-2xl flex-1 flex flex-col overflow-hidden shadow-lg themed-panel">
+            
+            <!-- Header & Search / Filter / Sort Controls -->
+            <div class="flex flex-wrap justify-between items-center gap-3 border-b border-gray-700/50 pb-4 mb-4 shrink-0">
+                <div class="flex flex-wrap items-center gap-3">
+                    <h2 class="text-2xl font-bold themed-title-2 drop-shadow-md">Menu & Inventory</h2>
+                    <button onclick="openNewDrinkForm()" class="bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-xl text-sm font-bold transition shadow-md flex items-center gap-1.5">
+                        ➕ Add New Drink
+                    </button>
+
+                    <!-- Specials Banner Title Customizer -->
+                    <div class="flex items-center gap-1.5 bg-gray-900/90 px-3 py-1.5 rounded-xl border border-yellow-600/50">
+                        <span class="text-xs font-bold text-yellow-400 whitespace-nowrap">⭐ Specials Title:</span>
+                        <input type="text" id="specials-title-input" placeholder="🎄 Ugly Sweater Party Specials" class="bg-gray-800 text-white px-2.5 py-1 rounded-lg text-xs border border-gray-700 focus:outline-none focus:border-yellow-400 w-44">
+                        <button onclick="saveSpecialsTitle()" class="bg-yellow-600 hover:bg-yellow-500 text-white px-2.5 py-1 rounded-lg text-xs font-bold transition">Save</button>
+                    </div>
+                </div>
+
+                <!-- Search, Category Filter & Sort Bar -->
+                <div class="flex flex-wrap items-center gap-2 justify-end">
+                    <input type="text" id="admin-menu-search" oninput="renderMenuAdmin()" placeholder="Search drinks or notes..." class="bg-gray-900 text-white px-3 py-2 rounded-xl text-sm border border-gray-600 focus:outline-none focus:border-blue-500 w-44 sm:w-52">
+                    <select id="admin-cat-filter" onchange="renderMenuAdmin()" class="bg-gray-900 text-white px-3 py-2 rounded-xl text-sm border border-gray-600 font-bold focus:outline-none focus:border-blue-500 cursor-pointer">
+                        <option value="ALL">All Categories</option>
+                        <option value="SPECIALS">⭐ Featured Specials</option>
+                        <option value="Draft">🍺 On Tap (Drafts)</option>
+                        <option value="Beer">🥫 Beer</option>
+                        <option value="Seltzer">🫧 Seltzer</option>
+                        <option value="Cider">🍎 Cider</option>
+                        <option value="Cocktail">🍸 Cocktail</option>
+                        <option value="Wine">🍷 Wine</option>
+                        <option value="Liquor">🥃 Liquor & Shots</option>
+                    </select>
+                    <select id="admin-sort-selector" onchange="renderMenuAdmin()" class="bg-gray-900 text-white px-3 py-2 rounded-xl text-sm border border-gray-600 font-bold focus:outline-none focus:border-blue-500 cursor-pointer">
+                        <option value="default">Sort: Default</option>
+                        <option value="name_asc">Sort: Name (A-Z)</option>
+                        <option value="category">Sort: Category</option>
+                        <option value="stock_asc">⚠️ Lowest Stock First</option>
+                        <option value="stock_desc">📦 Highest Stock First</option>
+                        <option value="abv_desc">💧 Highest ABV</option>
+                        <option value="abv_asc">💧 Lowest ABV</option>
+                        <option value="cal_asc">🔥 Lowest Calories</option>
+                        <option value="cal_desc">🔥 Highest Calories</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Collapsible Add / Edit Form Drawer -->
+            <div id="add-drink-form" class="hidden flex-col gap-3 mb-5 shrink-0 bg-gray-900/95 p-4 rounded-xl border-2 border-blue-500/60 shadow-2xl">
+                <div class="flex justify-between items-center mb-1">
+                    <span id="form-mode-title" class="text-sm font-black uppercase tracking-wider text-blue-400">Add New Drink</span>
+                    <button onclick="closeDrinkForm()" class="text-xs text-gray-400 hover:text-white px-2 py-0.5 rounded bg-gray-800 border border-gray-700">✕ Cancel</button>
                 </div>
                 
-                <div id="add-drink-form" class="hidden flex-col gap-4 mb-6 shrink-0 bg-gray-900/80 p-5 rounded-xl border border-gray-700 shadow-inner">
-                    <div class="flex gap-4">
-                        <input type="text" id="new-item-name" placeholder="Drink Name (e.g. Labatt Blue)" class="flex-1 bg-gray-800 text-white px-4 py-3 rounded-lg text-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
-                        <select id="new-item-category" class="bg-gray-800 text-white px-4 py-3 rounded-lg text-lg focus:outline-none w-1/5">
-                            <option value="Beer">Beer</option>
-                            <option value="Cider">Cider</option>
-                            <option value="Wine">Wine</option>
-                            <option value="Cocktail">Cocktail</option>
-                            <option value="Shot">Shot</option>
-                        </select>
-                        <select id="new-item-container" class="bg-gray-800 text-white px-4 py-3 rounded-lg text-lg focus:outline-none w-1/5">
-                            <option value="">Any Cont.</option>
-                            <option value="Draft">Draft</option>
-                            <option value="Can">Can</option>
-                            <option value="Bottle">Bottle</option>
-                        </select>
-                        <button onclick="quickLookup()" class="bg-purple-600 hover:bg-purple-500 text-white px-6 py-3 rounded-lg font-bold text-lg transition shrink-0">🔍 Lookup</button>
+                <!-- Row 1: Name, Category, Container, Lookup -->
+                <div class="grid grid-cols-1 md:grid-cols-12 gap-3">
+                    <input type="text" id="new-item-name" placeholder="Drink Name (e.g. Mistletoe Margarita)" class="md:col-span-5 bg-gray-800 text-white px-3 py-2.5 rounded-lg text-sm border border-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <select id="new-item-category" class="md:col-span-3 bg-gray-800 text-white px-3 py-2.5 rounded-lg text-sm border border-gray-700 focus:outline-none">
+                        <option value="Beer">Beer</option>
+                        <option value="Seltzer">Seltzer</option>
+                        <option value="Cider">Cider</option>
+                        <option value="Wine">Wine</option>
+                        <option value="Cocktail">Cocktail</option>
+                        <option value="Shot">Shot</option>
+                        <option value="Liquor">Liquor</option>
+                    </select>
+                    <select id="new-item-container" class="md:col-span-2 bg-gray-800 text-white px-3 py-2.5 rounded-lg text-sm border border-gray-700 focus:outline-none">
+                        <option value="">Any Cont.</option>
+                        <option value="Draft">Draft</option>
+                        <option value="Can">Can</option>
+                        <option value="Bottle">Bottle</option>
+                        <option value="Liquor">Liquor</option>
+                    </select>
+                    <button onclick="quickLookup()" class="md:col-span-2 bg-purple-600 hover:bg-purple-500 text-white px-4 py-2.5 rounded-lg font-bold text-sm transition shrink-0 shadow">🔍 Lookup</button>
+                </div>
+
+                <!-- Row 2: Inventory Controls (Max Capacity, Current Left, Presets) -->
+                <div class="grid grid-cols-1 md:grid-cols-12 gap-3 items-center bg-gray-800/60 p-2.5 rounded-lg border border-gray-700/70">
+                    <div class="md:col-span-4 flex items-center gap-2">
+                        <label class="text-xs text-gray-400 font-bold uppercase whitespace-nowrap w-24">Full Max Size:</label>
+                        <input type="number" id="new-item-max-inventory" placeholder="Full Qty or ml (e.g. 1000)" class="w-full bg-gray-900 text-white px-3 py-2 rounded-lg text-sm border border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500" title="Full bottle/keg/pack capacity (Type 750, 1000, or 1750 for auto-shot math)">
                     </div>
-                    <div class="flex gap-4">
-                        <input type="text" id="new-item-abv" placeholder="ABV (e.g. 5.5%)" class="bg-gray-800 text-white px-4 py-3 rounded-lg text-lg w-1/4 focus:outline-none focus:ring-2 focus:ring-blue-500">
-                        <input type="text" id="new-item-cal" placeholder="Calories" class="bg-gray-800 text-white px-4 py-3 rounded-lg text-lg w-1/4 focus:outline-none focus:ring-2 focus:ring-blue-500">
-                        <input type="text" id="new-item-notes" placeholder="Brief notes (e.g. Crisp, sweet)" class="flex-1 bg-gray-800 text-white px-4 py-3 rounded-lg text-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
-                        <button id="add-drink-btn" onclick="addOrUpdateMenuItem()" class="bg-green-600 hover:bg-green-500 text-white px-8 py-3 rounded-lg text-lg font-bold transition shadow">Add</button>
+                    <div class="md:col-span-4 flex items-center gap-2">
+                        <label class="text-xs text-gray-400 font-bold uppercase whitespace-nowrap w-24">Current Left:</label>
+                        <input type="number" id="new-item-inventory" placeholder="Remaining" class="w-full bg-gray-900 text-white px-3 py-2 rounded-lg text-sm border border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500" title="Actual pours/cans left right now">
+                    </div>
+                    <div class="md:col-span-4 flex items-center justify-end gap-1.5">
+                        <span class="text-[11px] text-gray-400 font-bold uppercase mr-1">Quick Level:</span>
+                        <button type="button" onclick="applyLevelPreset(0.25)" class="bg-gray-900 hover:bg-red-900/60 text-gray-200 hover:text-red-300 border border-gray-600 px-2.5 py-1.5 rounded-lg text-xs font-bold transition">25%</button>
+                        <button type="button" onclick="applyLevelPreset(0.50)" class="bg-gray-900 hover:bg-yellow-900/60 text-gray-200 hover:text-yellow-300 border border-gray-600 px-2.5 py-1.5 rounded-lg text-xs font-bold transition">50%</button>
+                        <button type="button" onclick="applyLevelPreset(0.75)" class="bg-gray-900 hover:bg-blue-900/60 text-gray-200 hover:text-blue-300 border border-gray-600 px-2.5 py-1.5 rounded-lg text-xs font-bold transition">75%</button>
+                        <button type="button" onclick="applyLevelPreset(1.00)" class="bg-gray-900 hover:bg-green-900/60 text-gray-200 hover:text-green-300 border border-gray-600 px-2.5 py-1.5 rounded-lg text-xs font-bold transition">100%</button>
                     </div>
                 </div>
 
-                <div id="menu-list" class="grid grid-cols-2 gap-4 overflow-y-auto flex-1 pr-3 content-start"></div>
+                <!-- Row 3: ABV, Calories, Notes, Submit -->
+                <div class="grid grid-cols-1 md:grid-cols-12 gap-3">
+                    <input type="text" id="new-item-abv" placeholder="ABV (e.g. 5.5%)" class="md:col-span-2 bg-gray-800 text-white px-3 py-2.5 rounded-lg text-sm border border-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <input type="text" id="new-item-cal" placeholder="Calories" class="md:col-span-2 bg-gray-800 text-white px-3 py-2.5 rounded-lg text-sm border border-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <input type="text" id="new-item-notes" placeholder="Brief notes (e.g. Cranberry, lime, tequila, festive rim)" class="md:col-span-6 bg-gray-800 text-white px-3 py-2.5 rounded-lg text-sm border border-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <button id="add-drink-btn" onclick="addOrUpdateMenuItem()" class="md:col-span-2 bg-green-600 hover:bg-green-500 text-white px-6 py-2.5 rounded-lg text-sm font-bold transition shadow-lg">Add Drink</button>
+                </div>
             </div>
+
+            <!-- Spacious 3-Column Card Grid -->
+            <div id="menu-list" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3.5 overflow-y-auto flex-1 pr-2 content-start pb-4"></div>
         </div>
-
-        <div class="flex flex-col gap-8 h-full overflow-hidden">
-            
-            <div class="p-6 rounded-2xl flex-1 flex flex-col overflow-hidden shadow-lg themed-panel">
-                <div class="flex justify-between items-center border-b border-gray-700/50 pb-4 mb-5 shrink-0">
-                    <h2 class="text-3xl font-bold themed-title-3 drop-shadow-md">Recent Pours</h2>
-                    <input type="date" id="global-history-date" onchange="loadDashboardData()" class="bg-gray-800 text-white rounded-lg px-3 py-2 text-base border border-gray-600 focus:outline-none cursor-pointer">
-                </div>
-                <div id="order-history" class="space-y-4 overflow-y-auto flex-1 pr-3 pb-2"></div>
-            </div>
-            
-            <div class="p-6 rounded-2xl flex-1 flex flex-col overflow-hidden shadow-lg themed-panel">
-                <div id="guest-box-title" class="flex justify-between items-center border-b border-gray-700/50 pb-4 mb-5 shrink-0">
-                    <h2 class="text-3xl font-bold themed-title-4 drop-shadow-md">Guest Directory</h2>
-                    <div class="flex items-center gap-2">
-                        <span class="text-sm text-gray-400 font-bold">Passcode:</span>
-                        <input type="text" id="daily-code-input" placeholder="Blank=Open" class="bg-gray-900 text-white border border-gray-600 rounded px-2 py-1.5 w-28 text-sm text-center focus:outline-none focus:border-blue-500 uppercase">
-                        <button onclick="updateDailyCode()" class="bg-purple-600 hover:bg-purple-500 px-4 py-1.5 rounded text-sm font-bold shadow transition">Save</button>
-                    </div>
-                </div>
-                <div id="guest-list-container" class="space-y-3 overflow-y-auto flex-1 pr-3 pb-2"></div>
-            </div>
-        </div>
-
     </div>
 
     <script>
@@ -153,8 +290,75 @@
         let audioCtx = null;
         let editingMenuId = null;
         let currentTeam = 'none';
+        let adminMenuCache = [];
 
         document.getElementById('sound-selector').value = localStorage.getItem('bar_sound_pref') || 'ding';
+
+        function switchTab(tab) {
+            const liveView = document.getElementById('view-live');
+            const menuView = document.getElementById('view-menu');
+            const btnLive = document.getElementById('tab-btn-live');
+            const btnMenu = document.getElementById('tab-btn-menu');
+
+            if (tab === 'live') {
+                liveView.classList.remove('hidden');
+                menuView.classList.add('hidden');
+                menuView.classList.remove('flex');
+                btnLive.className = "px-4 py-1.5 rounded-lg font-bold text-sm transition bg-blue-600 text-white shadow flex items-center gap-2";
+                btnMenu.className = "px-4 py-1.5 rounded-lg font-bold text-sm transition text-gray-400 hover:text-white flex items-center gap-2";
+            } else {
+                liveView.classList.add('hidden');
+                menuView.classList.remove('hidden');
+                menuView.classList.add('flex');
+                btnMenu.className = "px-4 py-1.5 rounded-lg font-bold text-sm transition bg-blue-600 text-white shadow flex items-center gap-2";
+                btnLive.className = "px-4 py-1.5 rounded-lg font-bold text-sm transition text-gray-400 hover:text-white flex items-center gap-2";
+                loadMenuAdmin();
+                loadSpecialsTitle();
+            }
+        }
+
+        window._themeOverride = 'auto';
+
+        function loadThemeSetting() {
+            fetch('/api/settings/theme').then(r => r.json()).then(data => {
+                if (data.theme) {
+                    window._themeOverride = data.theme;
+                    document.getElementById('theme-mode').value = data.theme;
+                    applyTheme(currentTeam);
+                }
+            }).catch(e => {});
+        }
+
+        function updateThemeMode(val) {
+            window._themeOverride = val;
+            applyTheme(currentTeam);
+            fetch('/api/settings/theme', {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ theme: val })
+            });
+        }
+
+        function loadSpecialsTitle() {
+            fetch('/api/settings/specials_title').then(r => r.json()).then(data => {
+                if (data.title) document.getElementById('specials-title-input').value = data.title;
+            }).catch(e => {});
+        }
+
+        function saveSpecialsTitle() {
+            const val = document.getElementById('specials-title-input').value.trim();
+            fetch('/api/settings/specials_title', {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ title: val })
+            }).then(r => r.json()).then(data => {
+                alert(`⭐ Specials banner title updated to: ${data.title}`);
+            });
+        }
+
+        function toggleSpecial(itemId) {
+            fetch(`/api/menu/${itemId}/toggle_special`, { method: 'POST' }).then(() => loadMenuAdmin());
+        }
 
         function loadStatusToggles() {
             fetch('/api/settings/status').then(r=>r.json()).then(data=>{
@@ -165,10 +369,10 @@
 
         function updateStatus(key, val) {
             let payload = {}; payload[key] = val;
-            fetch('/api/settings/status', { 
-                method: 'PUT', 
-                headers: {'Content-Type': 'application/json'}, 
-                body: JSON.stringify(payload) 
+            fetch('/api/settings/status', {
+                method: 'PUT',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(payload)
             }).then(() => loadDashboardData());
         }
 
@@ -190,14 +394,16 @@
         }
 
         function applyTheme(team) {
-            if (team === 'bills') {
+            let effective = (window._themeOverride && window._themeOverride !== 'auto') ? window._themeOverride : team;
+            document.body.classList.remove('theme-bills', 'theme-sabres', 'theme-christmas', 'theme-bluejays');
+            if (effective === 'bills') {
                 document.body.classList.add('theme-bills');
-                document.body.classList.remove('theme-sabres');
-            } else if (team === 'sabres') {
+            } else if (effective === 'sabres') {
                 document.body.classList.add('theme-sabres');
-                document.body.classList.remove('theme-bills');
-            } else {
-                document.body.classList.remove('theme-bills', 'theme-sabres');
+            } else if (effective === 'christmas') {
+                document.body.classList.add('theme-christmas');
+            } else if (effective === 'bluejays') {
+                document.body.classList.add('theme-bluejays');
             }
         }
 
@@ -206,8 +412,8 @@
             const btn = document.getElementById('sound-toggle');
             if (isSoundOn) {
                 btn.innerHTML = '🔊 Sound On';
-                btn.className = 'bg-green-600 hover:bg-green-500 text-white px-5 py-2 rounded-xl font-bold transition shadow-sm border border-green-500 w-44';
-                
+                btn.className = 'bg-green-600 hover:bg-green-500 text-white px-3 py-2 rounded-lg font-bold transition shadow-sm border border-green-500 text-sm w-28';
+
                 if (!audioCtx) {
                     const AudioContext = window.AudioContext || window.webkitAudioContext;
                     audioCtx = new AudioContext();
@@ -216,7 +422,7 @@
                 playNotification();
             } else {
                 btn.innerHTML = '🔇 Sound Off';
-                btn.className = 'bg-gray-800 hover:bg-gray-700 text-white px-5 py-2 rounded-xl font-bold transition shadow-sm border border-gray-600 w-44';
+                btn.className = 'bg-gray-900 hover:bg-gray-800 text-white px-3 py-2 rounded-lg font-bold transition shadow-sm border border-gray-600 text-sm w-28';
             }
         }
 
@@ -224,7 +430,7 @@
             if (!isSoundOn || !audioCtx) return;
             try {
                 let soundType = overrideSound || document.getElementById('sound-selector').value;
-                let options = ['ding', 'arcade', 'levelup', 'buzzer', 'charge', 'train'];
+                let options = ['ding', 'jingle', 'sleigh', 'arcade', 'levelup', 'buzzer', 'charge', 'train'];
                 if (soundType === 'random') soundType = options[Math.floor(Math.random() * options.length)];
 
                 const t = audioCtx.currentTime;
@@ -243,13 +449,13 @@
                     const osc = audioCtx.createOscillator();
                     const gainNode = audioCtx.createGain();
                     osc.type = 'square';
-                    osc.frequency.setValueAtTime(987.77, t); 
-                    osc.frequency.setValueAtTime(1318.51, t + 0.1); 
+                    osc.frequency.setValueAtTime(987.77, t);
+                    osc.frequency.setValueAtTime(1318.51, t + 0.1);
                     gainNode.gain.setValueAtTime(0.15, t);
                     gainNode.gain.setTargetAtTime(0.0001, t + 0.3, 0.1);
                     osc.connect(gainNode); gainNode.connect(audioCtx.destination);
                     osc.start(); osc.stop(t + 0.6);
-                } 
+                }
                 else if (soundType === 'levelup') {
                     const osc = audioCtx.createOscillator();
                     const gainNode = audioCtx.createGain();
@@ -268,7 +474,7 @@
                     const gainNode = audioCtx.createGain();
                     osc.type = 'sawtooth';
                     osc.frequency.setValueAtTime(110, t);
-                    osc.frequency.setValueAtTime(110, t + 0.4); 
+                    osc.frequency.setValueAtTime(110, t + 0.4);
                     osc.frequency.linearRampToValueAtTime(80, t + 0.8);
                     gainNode.gain.setValueAtTime(0.4, t);
                     gainNode.gain.setTargetAtTime(0.0001, t + 0.5, 0.1);
@@ -279,12 +485,12 @@
                     const osc = audioCtx.createOscillator();
                     const gainNode = audioCtx.createGain();
                     osc.type = 'square';
-                    osc.frequency.setValueAtTime(392, t);        
-                    osc.frequency.setValueAtTime(523.25, t + 0.15); 
-                    osc.frequency.setValueAtTime(659.25, t + 0.3);  
-                    osc.frequency.setValueAtTime(783.99, t + 0.45); 
-                    osc.frequency.setValueAtTime(659.25, t + 0.7);  
-                    osc.frequency.setValueAtTime(783.99, t + 0.85); 
+                    osc.frequency.setValueAtTime(392, t);
+                    osc.frequency.setValueAtTime(523.25, t + 0.15);
+                    osc.frequency.setValueAtTime(659.25, t + 0.3);
+                    osc.frequency.setValueAtTime(783.99, t + 0.45);
+                    osc.frequency.setValueAtTime(659.25, t + 0.7);
+                    osc.frequency.setValueAtTime(783.99, t + 0.85);
                     gainNode.gain.setValueAtTime(0.15, t);
                     gainNode.gain.setTargetAtTime(0, t + 1.2, 0.05);
                     osc.connect(gainNode); gainNode.connect(audioCtx.destination);
@@ -296,14 +502,134 @@
                     const gainNode = audioCtx.createGain();
                     osc1.type = 'sawtooth';
                     osc2.type = 'sawtooth';
-                    osc1.frequency.setValueAtTime(155.56, t); 
-                    osc2.frequency.setValueAtTime(185.00, t); 
+                    osc1.frequency.setValueAtTime(155.56, t);
+                    osc2.frequency.setValueAtTime(185.00, t);
                     gainNode.gain.setValueAtTime(0.3, t);
                     gainNode.gain.setTargetAtTime(0.0001, t + 0.8, 0.2);
                     osc1.connect(gainNode); osc2.connect(gainNode);
                     gainNode.connect(audioCtx.destination);
                     osc1.start(); osc2.start();
                     osc1.stop(t + 1.2); osc2.stop(t + 1.2);
+                }
+                else if (soundType === 'jingle') {
+                    // Helper to play a glockenspiel bell note
+                    const playBell = (freq, startOffset, dur) => {
+                        const osc = audioCtx.createOscillator();
+                        const over = audioCtx.createOscillator();
+                        const gain = audioCtx.createGain();
+                        const overGain = audioCtx.createGain();
+
+                        osc.type = 'sine';
+                        over.type = 'sine';
+                        osc.frequency.setValueAtTime(freq, t + startOffset);
+                        over.frequency.setValueAtTime(freq * 3, t + startOffset);
+
+                        gain.gain.setValueAtTime(0.28, t + startOffset);
+                        gain.gain.exponentialRampToValueAtTime(0.0001, t + startOffset + dur);
+
+                        overGain.gain.setValueAtTime(0.07, t + startOffset);
+                        overGain.gain.exponentialRampToValueAtTime(0.0001, t + startOffset + (dur * 0.45));
+
+                        osc.connect(gain);
+                        over.connect(overGain);
+                        gain.connect(audioCtx.destination);
+                        overGain.connect(audioCtx.destination);
+
+                        osc.start(t + startOffset);
+                        over.start(t + startOffset);
+                        osc.stop(t + startOffset + dur);
+                        over.stop(t + startOffset + dur);
+                    };
+
+                    // Helper for metallic sleigh-bell shake on the beat
+                    const playShake = (startOffset) => {
+                        const bufferSize = Math.floor(audioCtx.sampleRate * 0.09);
+                        const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+                        const data = buffer.getChannelData(0);
+                        for (let i = 0; i < bufferSize; i++) data[i] = Math.random() * 2 - 1;
+
+                        const noise = audioCtx.createBufferSource();
+                        noise.buffer = buffer;
+
+                        const filter = audioCtx.createBiquadFilter();
+                        filter.type = 'bandpass';
+                        filter.frequency.setValueAtTime(4800, t + startOffset);
+                        filter.Q.setValueAtTime(3.5, t + startOffset);
+
+                        const nGain = audioCtx.createGain();
+                        nGain.gain.setValueAtTime(0.18, t + startOffset);
+                        nGain.gain.exponentialRampToValueAtTime(0.001, t + startOffset + 0.09);
+
+                        noise.connect(filter);
+                        filter.connect(nGain);
+                        nGain.connect(audioCtx.destination);
+                        noise.start(t + startOffset);
+                    };
+
+                    // "Jin-gle bells, jin-gle bells, jin-gle all the way!"
+                    const notes = [
+                        [659.25, 0.00, 0.22], [659.25, 0.20, 0.22], [659.25, 0.40, 0.42],
+                        [659.25, 0.80, 0.22], [659.25, 1.00, 0.22], [659.25, 1.20, 0.42],
+                        [659.25, 1.60, 0.22], [783.99, 1.80, 0.22], [523.25, 2.00, 0.28], [587.33, 2.28, 0.16], [659.25, 2.44, 0.65]
+                    ];
+                    notes.forEach(([f, s, d]) => playBell(f, s, d));
+                    [0.0, 0.4, 0.8, 1.2, 1.6, 2.0, 2.44].forEach(s => playShake(s));
+                }
+                else if (soundType === 'sleigh') {
+                    // 4 crisp sleigh-bell shakes + shimmering holiday chime arpeggio
+                    const shakeTimes = [0.0, 0.22, 0.44, 0.66];
+                    shakeTimes.forEach(offset => {
+                        const bufferSize = Math.floor(audioCtx.sampleRate * 0.11);
+                        const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+                        const data = buffer.getChannelData(0);
+                        for (let i = 0; i < bufferSize; i++) data[i] = Math.random() * 2 - 1;
+
+                        const noise = audioCtx.createBufferSource();
+                        noise.buffer = buffer;
+
+                        const hp = audioCtx.createBiquadFilter();
+                        hp.type = 'highpass';
+                        hp.frequency.setValueAtTime(4200, t + offset);
+
+                        const nGain = audioCtx.createGain();
+                        nGain.gain.setValueAtTime(0.25, t + offset);
+                        nGain.gain.exponentialRampToValueAtTime(0.001, t + offset + 0.11);
+
+                        noise.connect(hp);
+                        hp.connect(nGain);
+                        nGain.connect(audioCtx.destination);
+                        noise.start(t + offset);
+
+                        // High metallic jingle overtones
+                        [2637.02, 3520.00, 4186.01].forEach(freq => {
+                            const ping = audioCtx.createOscillator();
+                            const pGain = audioCtx.createGain();
+                            ping.type = 'sine';
+                            ping.frequency.setValueAtTime(freq, t + offset);
+                            pGain.gain.setValueAtTime(0.05, t + offset);
+                            pGain.gain.exponentialRampToValueAtTime(0.0001, t + offset + 0.14);
+                            ping.connect(pGain);
+                            pGain.connect(audioCtx.destination);
+                            ping.start(t + offset);
+                            ping.stop(t + offset + 0.14);
+                        });
+                    });
+
+                    // Sparkling Cmaj9 chime cascade
+                    const chimeNotes = [523.25, 659.25, 783.99, 987.77, 1174.66, 1567.98];
+                    chimeNotes.forEach((freq, idx) => {
+                        const start = idx * 0.11;
+                        const osc = audioCtx.createOscillator();
+                        const cGain = audioCtx.createGain();
+                        osc.type = 'triangle';
+                        osc.frequency.setValueAtTime(freq, t + start);
+                        cGain.gain.setValueAtTime(0.22, t + start);
+                        cGain.gain.exponentialRampToValueAtTime(0.0001, t + start + 0.9);
+                        osc.connect(cGain);
+                        cGain.connect(audioCtx.destination);
+                        osc.start(t + start);
+                        osc.stop(t + start + 0.9);
+                    });
                 }
             } catch(e) { console.log("Audio play error", e); }
         }
@@ -327,20 +653,20 @@
             document.querySelectorAll('.order-timer').forEach(el => {
                 let placed = new Date(el.getAttribute('data-time'));
                 let diff = Math.floor((Date.now() - placed) / 1000);
-                if (diff < 0) diff = 0; 
-                
+                if (diff < 0) diff = 0;
+
                 let m = Math.floor(diff / 60);
                 let s = diff % 60;
                 let timeStr = m + 'm ' + (s < 10 ? '0' : '') + s + 's';
-                
+
                 if (m >= 5) {
-                    el.className = 'order-timer text-base font-bold text-red-400 animate-pulse mt-1 block';
+                    el.className = 'order-timer text-sm font-bold text-red-400 animate-pulse mt-1 block';
                 } else if (m >= 3) {
-                    el.className = 'order-timer text-base font-bold text-yellow-400 mt-1 block';
+                    el.className = 'order-timer text-sm font-bold text-yellow-400 mt-1 block';
                 } else {
-                    el.className = 'order-timer text-base font-bold text-gray-400 mt-1 block';
+                    el.className = 'order-timer text-sm font-bold text-gray-400 mt-1 block';
                 }
-                
+
                 el.innerText = 'Wait: ' + timeStr;
             });
         }
@@ -350,10 +676,10 @@
                 const badge = document.getElementById('tunnel-badge');
                 if (badge) {
                     if (data.is_open) {
-                        badge.className = "text-sm px-3 py-1 rounded-full bg-green-900/50 text-green-400 border border-green-700 flex items-center shadow-[0_0_10px_rgba(74,222,128,0.2)] ml-4 whitespace-nowrap";
+                        badge.className = "text-xs px-3 py-1 rounded-full bg-green-900/50 text-green-400 border border-green-700 flex items-center shadow-[0_0_10px_rgba(74,222,128,0.2)] whitespace-nowrap";
                         badge.innerHTML = "🟢 Live: " + data.message;
                     } else {
-                        badge.className = "text-sm px-3 py-1 rounded-full bg-gray-800 text-gray-400 border border-gray-600 flex items-center ml-4 whitespace-nowrap";
+                        badge.className = "text-xs px-3 py-1 rounded-full bg-gray-900 text-gray-400 border border-gray-600 flex items-center whitespace-nowrap";
                         badge.innerHTML = "🔴 Offline (" + data.message + ")";
                     }
                 }
@@ -361,41 +687,49 @@
 
             fetch('/api/orders/active').then(res => res.json()).then(data => {
                 const queue = document.getElementById('order-queue');
+                const orderBadge = document.getElementById('nav-order-badge');
                 queue.innerHTML = '';
-                if (data.orders.length === 0) queue.innerHTML = '<div class="text-gray-500 italic flex items-center justify-center h-full text-2xl w-full">No active orders</div>';
-                
+
+                if (data.orders.length === 0) {
+                    queue.innerHTML = '<div class="text-gray-500 italic flex items-center justify-center h-48 text-lg col-span-full">No active orders right now</div>';
+                    orderBadge.classList.add('hidden');
+                } else {
+                    orderBadge.innerText = data.orders.length;
+                    orderBadge.classList.remove('hidden');
+                }
+
                 const currentIds = data.orders.map(o => o.id);
-                
+
                 if (initialLoadComplete) {
                     const hasNew = currentIds.some(id => !knownOrderIds.includes(id));
-                    if (hasNew) playNotification(); 
+                    if (hasNew) playNotification();
                 }
-                
+
                 knownOrderIds = currentIds;
-                initialLoadComplete = true; 
+                initialLoadComplete = true;
 
                 data.orders.forEach(order => {
-                    let noteHtml = order.note ? `<div class="text-base font-bold text-yellow-300 bg-yellow-900/40 p-3 rounded-lg mt-3 border border-yellow-700/50 shadow-inner">💬 ${order.note}</div>` : '';
+                    let noteHtml = order.note ? `<div class="text-sm font-bold text-yellow-300 bg-yellow-900/40 p-2 rounded mt-2 border border-yellow-700/50 shadow-inner">💬 ${order.note}</div>` : '';
                     queue.innerHTML += `
-                        <div class="bg-gray-800 p-5 rounded-2xl border-l-8 border-blue-500 shadow-md flex flex-col">
-                            <div class="flex justify-between items-start mb-3">
-                                <h2 class="text-2xl font-bold text-white">${order.guest_name}</h2>
+                        <div class="bg-gray-800 p-4 rounded-xl border-l-[6px] border-blue-500 shadow flex flex-col">
+                            <div class="flex justify-between items-start mb-2">
+                                <h2 class="text-lg font-bold text-white">${order.guest_name}</h2>
                                 <div class="text-right">
-                                    <span class="text-sm text-gray-400 block">${order.time}</span>
-                                    <span class="order-timer text-base font-bold text-gray-400 mt-1 block" data-time="${order.raw_time}">Wait: 0m 00s</span>
+                                    <span class="text-xs text-gray-400 block">${order.time}</span>
+                                    <span class="order-timer text-sm font-bold text-gray-400 mt-0.5 block" data-time="${order.raw_time}">Wait: 0m 00s</span>
                                 </div>
                             </div>
-                            <p class="text-3xl text-blue-300 font-bold mb-1">${order.item_name}</p>
+                            <p class="text-xl text-blue-300 font-bold mb-1 leading-tight">${order.item_name}</p>
                             ${noteHtml}
-                            <div class="flex gap-4 mt-6 mt-auto">
-                                <button onclick="serveOrder(${order.id})" class="flex-1 bg-green-600 hover:bg-green-500 py-3 rounded-xl text-xl font-bold transition shadow">Serve</button>
-                                <button onclick="rejectOrder(${order.id})" class="bg-red-600 hover:bg-red-500 px-6 py-3 rounded-xl text-xl font-bold transition shadow">Reject</button>
+                            <div class="flex gap-3 mt-4 pt-2">
+                                <button onclick="serveOrder(${order.id})" class="flex-1 bg-green-600 hover:bg-green-500 py-2 rounded-lg text-base font-bold transition shadow">Serve</button>
+                                <button onclick="rejectOrder(${order.id})" class="bg-red-600 hover:bg-red-500 px-4 py-2 rounded-lg text-base font-bold transition shadow">Reject</button>
                             </div>
                         </div>
                     `;
                 });
-                
-                updateTimers(); 
+
+                updateTimers();
             });
 
             let dateFilter = document.getElementById('global-history-date').value;
@@ -405,15 +739,15 @@
             fetch(url).then(res => res.json()).then(data => {
                 const history = document.getElementById('order-history');
                 history.innerHTML = '';
-                if (data.orders.length === 0) history.innerHTML = '<p class="text-gray-500 italic text-xl">No orders found.</p>';
+                if (data.orders.length === 0) history.innerHTML = '<p class="text-gray-500 italic text-base">No orders found.</p>';
                 data.orders.forEach(order => {
                     history.innerHTML += `
-                        <div class="bg-gray-800 p-4 rounded-xl flex justify-between items-center shadow-sm">
+                        <div class="bg-gray-800 p-3 rounded-lg flex justify-between items-center shadow-sm">
                             <div>
-                                <p class="font-bold text-xl text-gray-200">${order.guest_name}</p>
-                                <p class="text-lg text-blue-300">${order.item_name}</p>
+                                <p class="font-bold text-base text-gray-200">${order.guest_name}</p>
+                                <p class="text-sm text-blue-300">${order.item_name}</p>
                             </div>
-                            <span class="text-base text-gray-400">${order.time}</span>
+                            <span class="text-sm text-gray-400">${order.time}</span>
                         </div>
                     `;
                 });
@@ -425,13 +759,16 @@
         }
 
         function serveOrder(orderId) {
-            fetch(`/api/orders/${orderId}/serve`, { method: 'POST' }).then(() => loadDashboardData());
+            fetch(`/api/orders/${orderId}/serve`, { method: 'POST' }).then(() => {
+                loadDashboardData();
+                loadMenuAdmin();
+            });
         }
 
         function rejectOrder(orderId) {
             const reason = prompt("Reject this order?\n(Optional: Type a reason to show the guest, or leave blank)");
             if (reason !== null) {
-                fetch(`/api/orders/${orderId}/reject`, { 
+                fetch(`/api/orders/${orderId}/reject`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ reason: reason.trim() })
@@ -444,45 +781,205 @@
                 fetch(`/api/orders/${orderId}`, { method: 'DELETE' }).then(() => {
                     let dateFilter = document.getElementById('global-history-date') ? document.getElementById('global-history-date').value : '';
                     viewGuestHistory(guestName, deviceId, dateFilter);
-                    loadDashboardData(); 
+                    loadDashboardData();
                 });
             }
         }
 
+        function adjustStock(itemId, delta) {
+            fetch(`/api/menu/${itemId}/adjust`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ delta: delta })
+            }).then(() => loadMenuAdmin());
+        }
+
         function loadMenuAdmin() {
             fetch('/menu').then(res => res.json()).then(data => {
-                const menuList = document.getElementById('menu-list');
-                menuList.innerHTML = '';
-                data.menu.forEach(item => {
-                    let details = [];
-                    if (item.abv) details.push(item.abv);
-                    if (item.calories) details.push(item.calories + ' cal');
-                    let detailStr = details.length > 0 ? ` <span class="text-sm text-gray-400 font-normal ml-2 block truncate">(${details.join(' | ')})</span>` : '';
+                adminMenuCache = data.menu || [];
+                const countBadge = document.getElementById('nav-menu-count');
+                if (countBadge) countBadge.innerText = adminMenuCache.length;
+                renderMenuAdmin();
+            });
+        }
 
-                    let safeName = item.item_name.replace(/'/g, "\\'");
-                    let safeCat = item.category.replace(/'/g, "\\'");
-                    let safeAbv = (item.abv || '').replace(/'/g, "\\'");
-                    let safeCal = (item.calories || '').replace(/'/g, "\\'");
-                    let safeNotes = (item.notes || '').replace(/'/g, "\\'");
-                    let safeContainer = (item.container || '').replace(/'/g, "\\'");
-                    
-                    let containerBadge = item.container ? ` <span class="text-xs text-gray-400 ml-2 uppercase tracking-widest bg-gray-900 px-2 py-1 rounded-md shrink-0 border border-gray-600">${item.container}</span>` : '';
+        function renderMenuAdmin() {
+            const menuList = document.getElementById('menu-list');
+            const searchVal = (document.getElementById('admin-menu-search')?.value || '').toLowerCase();
+            const catFilter = document.getElementById('admin-cat-filter')?.value || 'ALL';
+            const sortType = document.getElementById('admin-sort-selector')?.value || 'default';
 
-                    menuList.innerHTML += `
-                        <div class="flex justify-between items-center bg-gray-800 px-5 py-4 rounded-xl shadow-sm overflow-hidden">
-                            <div class="truncate pr-3">
-                                <span class="font-bold text-xl text-gray-100">${item.item_name}</span> 
-                                <span class="text-xs text-gray-400 ml-2 uppercase tracking-widest bg-gray-900 px-2 py-1 rounded-md shrink-0">${item.category}</span>
-                                ${containerBadge}
-                                ${detailStr}
+            menuList.innerHTML = '';
+
+            let filtered = adminMenuCache.filter(item => {
+                let matchesSearch = item.item_name.toLowerCase().includes(searchVal) ||
+                                    item.category.toLowerCase().includes(searchVal) ||
+                                    (item.notes && item.notes.toLowerCase().includes(searchVal));
+                if (!matchesSearch) return false;
+
+                if (catFilter === 'ALL') return true;
+                if (catFilter === 'SPECIALS') return !!item.is_special;
+                if (catFilter === 'Draft') return item.container === 'Draft';
+                if (catFilter === 'Liquor') return item.category === 'Liquor' || item.category === 'Shot' || item.container === 'Liquor';
+                return item.category === catFilter;
+            });
+
+            function extractNum(val) {
+                if (!val) return null;
+                let match = String(val).match(/[\d\.]+/);
+                return match ? parseFloat(match[0]) : null;
+            }
+
+            function getStockMetric(item) {
+                if (item.current_pours === null || item.current_pours === undefined) return null;
+                let isPct = (item.container === 'Liquor' || item.category === 'Wine' || item.category === 'Liquor' || item.category === 'Shot' || item.container === 'Draft');
+                if (isPct && item.max_pours > 0) {
+                    return (item.current_pours / item.max_pours) * 100;
+                }
+                return item.current_pours;
+            }
+
+            filtered.sort((a, b) => {
+                if (sortType === 'name_asc') return a.item_name.localeCompare(b.item_name);
+                if (sortType === 'category') return a.category.localeCompare(b.category) || a.item_name.localeCompare(b.item_name);
+                if (sortType === 'stock_asc') {
+                    let sA = getStockMetric(a), sB = getStockMetric(b);
+                    if (sA === null && sB === null) return a.item_name.localeCompare(b.item_name);
+                    if (sA === null) return 1;
+                    if (sB === null) return -1;
+                    return sA - sB || a.item_name.localeCompare(b.item_name);
+                }
+                if (sortType === 'stock_desc') {
+                    let sA = getStockMetric(a), sB = getStockMetric(b);
+                    if (sA === null && sB === null) return a.item_name.localeCompare(b.item_name);
+                    if (sA === null) return 1;
+                    if (sB === null) return -1;
+                    return sB - sA || a.item_name.localeCompare(b.item_name);
+                }
+                if (sortType === 'abv_desc') {
+                    let vA = extractNum(a.abv), vB = extractNum(b.abv);
+                    if (vA === null && vB === null) return 0;
+                    if (vA === null) return 1;
+                    if (vB === null) return -1;
+                    return vB - vA;
+                }
+                if (sortType === 'abv_asc') {
+                    let vA = extractNum(a.abv), vB = extractNum(b.abv);
+                    if (vA === null && vB === null) return 0;
+                    if (vA === null) return 1;
+                    if (vB === null) return -1;
+                    return vA - vB;
+                }
+                if (sortType === 'cal_asc') {
+                    let vA = extractNum(a.calories), vB = extractNum(b.calories);
+                    if (vA === null && vB === null) return 0;
+                    if (vA === null) return 1;
+                    if (vB === null) return -1;
+                    return vA - vB;
+                }
+                if (sortType === 'cal_desc') {
+                    let vA = extractNum(a.calories), vB = extractNum(b.calories);
+                    if (vA === null && vB === null) return 0;
+                    if (vA === null) return 1;
+                    if (vB === null) return -1;
+                    return vB - vA;
+                }
+                return a.id - b.id;
+            });
+
+            if (filtered.length === 0) {
+                menuList.innerHTML = '<div class="text-gray-500 italic col-span-full text-center py-10">No drinks match your filter.</div>';
+                return;
+            }
+
+            filtered.forEach(item => {
+                let details = [];
+                if (item.abv) details.push(`💧 ${item.abv}`);
+                if (item.calories) details.push(`🔥 ${item.calories} cal`);
+                let detailStr = details.length > 0 ? `<div class="text-xs text-gray-400 mt-1 font-medium">${details.join(' &nbsp;•&nbsp; ')}</div>` : '';
+                let notesStr = item.notes ? `<div class="text-xs text-gray-500 italic mt-0.5 truncate">${item.notes}</div>` : '';
+
+                let safeName = item.item_name.replace(/'/g, "\\'").replace(/"/g, '&quot;');
+                let safeCat = item.category.replace(/'/g, "\\'");
+                let safeAbv = (item.abv || '').replace(/'/g, "\\'");
+                let safeCal = (item.calories || '').replace(/'/g, "\\'");
+                let safeNotes = (item.notes || '').replace(/'/g, "\\'").replace(/"/g, '&quot;');
+                let safeContainer = (item.container || '').replace(/'/g, "\\'");
+
+                let containerBadge = item.container ? `<span class="text-[10px] text-gray-300 uppercase tracking-widest bg-gray-900 px-2 py-0.5 rounded border border-gray-600">${item.container}</span>` : '';
+                
+                let invBadge = '';
+                let progressBarHtml = '';
+                let stepperHtml = '';
+                let isPctTracked = (item.container === 'Liquor' || item.category === 'Wine' || item.category === 'Liquor' || item.category === 'Shot');
+                let isTracked = (item.current_pours !== null && item.current_pours !== undefined) && (isPctTracked || item.container === 'Can' || item.container === 'Draft' || item.container === 'Bottle');
+
+                if (isTracked) {
+                    if (isPctTracked && item.max_pours > 0) {
+                        let pct = Math.round((item.current_pours / item.max_pours) * 100);
+                        let colorClass = pct <= 20 ? 'text-red-400 border-red-800 bg-red-950/60' : 'text-green-400 border-green-800 bg-green-950/60';
+                        let barColor = pct <= 20 ? 'bg-red-500' : pct <= 40 ? 'bg-yellow-500' : 'bg-green-500';
+                        invBadge = `<span class="text-[10px] ${colorClass} px-2 py-0.5 rounded border font-bold">${pct}% Full (${item.current_pours}/${item.max_pours})</span>`;
+                        progressBarHtml = `<div class="w-full h-1.5 bg-gray-900 rounded-full overflow-hidden"><div class="h-full ${barColor}" style="width: ${pct}%"></div></div>`;
+                    } else if (item.container === 'Can' || item.container === 'Draft' || item.container === 'Bottle') {
+                        let pct = item.max_pours > 0 ? Math.round((item.current_pours / item.max_pours) * 100) : 100;
+                        let colorClass = item.current_pours <= 5 ? 'text-red-400 border-red-800 bg-red-950/60' : 'text-green-400 border-green-800 bg-green-950/60';
+                        let barColor = item.current_pours <= 5 ? 'bg-red-500' : 'bg-emerald-500';
+                        let labelStr = item.container === 'Draft' && item.max_pours > 0 ? `${item.current_pours} Left (${pct}%)` : `${item.current_pours} Left`;
+                        invBadge = `<span class="text-[10px] ${colorClass} px-2 py-0.5 rounded border font-bold">${labelStr}</span>`;
+                        if (item.max_pours > 0) {
+                            progressBarHtml = `<div class="w-full h-1.5 bg-gray-900 rounded-full overflow-hidden"><div class="h-full ${barColor}" style="width: ${Math.min(100, pct)}%"></div></div>`;
+                        }
+                    }
+
+                    let atCap = (isPctTracked || item.container === 'Draft') && item.max_pours > 0 && item.current_pours >= item.max_pours;
+                    let plusDisabled = atCap ? 'opacity-40 cursor-not-allowed' : 'hover:bg-gray-700 active:scale-95';
+                    let minusDisabled = item.current_pours <= 0 ? 'opacity-40 cursor-not-allowed' : 'hover:bg-gray-700 active:scale-95';
+
+                    stepperHtml = `
+                        <div class="flex items-center justify-between gap-2 mt-3 pt-2.5 border-t border-gray-700/60">
+                            <button onclick="adjustStock(${item.id}, -1)" ${item.current_pours <= 0 ? 'disabled' : ''} class="bg-gray-900 text-red-400 font-black text-xs px-3 py-1.5 rounded-lg border border-gray-700 transition ${minusDisabled}">-1</button>
+                            <div class="flex-1 px-1">
+                                ${progressBarHtml}
                             </div>
-                            <div class="flex gap-2 shrink-0">
-                                <button onclick="editMenuItem(${item.id}, '${safeName}', '${safeCat}', '${safeAbv}', '${safeCal}', '${safeNotes}', '${safeContainer}')" class="text-blue-400 hover:text-blue-300 text-lg font-bold px-4 py-2 bg-gray-900 rounded-lg hover:bg-gray-700 transition shrink-0">Edit</button>
-                                <button onclick="removeMenuItem(${item.id})" class="text-red-400 hover:text-red-300 text-lg font-bold px-4 py-2 bg-gray-900 rounded-lg hover:bg-gray-700 transition shrink-0">Remove</button>
-                            </div>
+                            <button onclick="adjustStock(${item.id}, 1)" ${atCap ? 'disabled' : ''} class="bg-gray-900 text-green-400 font-black text-xs px-3 py-1.5 rounded-lg border border-gray-700 transition ${plusDisabled}">+1</button>
                         </div>
                     `;
-                });
+                }
+
+                let canReset = (item.container === 'Draft' || item.container === 'Liquor' || item.category === 'Wine' || item.max_pours > 0);
+                let invVal = item.current_pours !== null && item.current_pours !== undefined ? item.current_pours : "''";
+                let maxVal = item.max_pours !== null && item.max_pours !== undefined ? item.max_pours : "''";
+
+                let cardBorder = item.is_special ? 'border-yellow-500/90 bg-gray-800/95 shadow-[0_0_12px_rgba(234,179,8,0.15)]' : 'border-gray-700/80 bg-gray-800 hover:border-gray-500';
+                let starBtnClass = item.is_special
+                    ? 'bg-yellow-600/30 text-yellow-300 border-yellow-500 hover:bg-yellow-600/50'
+                    : 'bg-gray-900 text-gray-400 border-gray-700 hover:text-yellow-300 hover:border-yellow-600';
+                let starLabel = item.is_special ? '⭐ Special' : '☆ Special';
+
+                menuList.innerHTML += `
+                    <div class="flex flex-col justify-between p-4 rounded-xl shadow border transition ${cardBorder}">
+                        <div>
+                            <div class="flex justify-between items-start gap-2">
+                                <h3 class="font-bold text-base text-gray-100 leading-snug">${item.item_name}</h3>
+                                <div class="flex gap-1 shrink-0">
+                                    <button onclick="toggleSpecial(${item.id})" class="${starBtnClass} text-xs font-bold px-2 py-1 rounded-lg border transition" title="Toggle Bartender's Special">${starLabel}</button>
+                                    ${canReset ? `<button onclick="resetKeg(${item.id}, '${safeName}')" class="text-green-400 hover:text-white hover:bg-green-700 text-xs font-bold px-2 py-1 bg-gray-900 rounded-lg border border-gray-700 transition" title="Reset back to full max capacity">Reset</button>` : ''}
+                                    <button onclick="editMenuItem(${item.id}, '${safeName}', '${safeCat}', '${safeAbv}', '${safeCal}', '${safeNotes}', '${safeContainer}', ${invVal}, ${maxVal})" class="text-blue-400 hover:text-white hover:bg-blue-600 text-xs font-bold px-2 py-1 bg-gray-900 rounded-lg border border-gray-700 transition">Edit</button>
+                                    <button onclick="removeMenuItem(${item.id})" class="text-red-400 hover:text-white hover:bg-red-600 text-xs font-bold px-2 py-1 bg-gray-900 rounded-lg border border-gray-700 transition">Del</button>
+                                </div>
+                            </div>
+                            <div class="flex flex-wrap items-center gap-1.5 mt-2">
+                                <span class="text-[10px] text-blue-300 uppercase tracking-widest bg-blue-950/60 border border-blue-800/60 px-2 py-0.5 rounded font-semibold">${item.category}</span>
+                                ${containerBadge}
+                                ${invBadge}
+                            </div>
+                            ${detailStr}
+                            ${notesStr}
+                        </div>
+                        ${stepperHtml}
+                    </div>
+                `;
             });
         }
 
@@ -496,41 +993,131 @@
             window.open(`https://www.google.com/search?q=${query}`, '_blank');
         }
 
+        function convertVolumeIfNeeded(rawVal) {
+            let container = document.getElementById('new-item-container').value;
+            let category = document.getElementById('new-item-category').value;
+            let val = parseFloat(rawVal);
+            if (isNaN(val)) return null;
+
+            if (category === 'Wine') {
+                if (val >= 375) {
+                    let glasses = Math.round((val / 29.5735) / 5.0);
+                    alert(`🍷 Auto-converted ${val}ml bottle to ${glasses} standard (5oz) glasses of wine!`);
+                    return glasses;
+                } else if (String(rawVal).includes('.')) {
+                    let glasses = Math.round(val / 5.0);
+                    alert(`🍷 Auto-converted ${val} oz bottle to ${glasses} standard (5oz) glasses of wine!`);
+                    return glasses;
+                }
+            } else if (container === 'Liquor' || category === 'Liquor' || category === 'Shot') {
+                if (val >= 375) {
+                    let shots = Math.round((val / 29.5735) / 1.5);
+                    alert(`🥃 Auto-converted ${val}ml to ${shots} standard (1.5oz) shots!`);
+                    return shots;
+                } else if (String(rawVal).includes('.')) {
+                    let shots = Math.round(val / 1.5);
+                    alert(`🥃 Auto-converted ${val} oz to ${shots} standard (1.5oz) shots!`);
+                    return shots;
+                }
+            }
+            return Math.round(val);
+        }
+
+        function applyLevelPreset(ratio) {
+            const maxInput = document.getElementById('new-item-max-inventory');
+            const currInput = document.getElementById('new-item-inventory');
+            
+            let maxVal = parseFloat(maxInput.value);
+            if (isNaN(maxVal) || maxVal <= 0) {
+                alert("Enter the Full Max Size first (e.g. 750 or 1000 for ml, or total pours/cans) so we can calculate the percentage!");
+                maxInput.focus();
+                return;
+            }
+
+            if (maxVal >= 375 || String(maxInput.value).includes('.')) {
+                maxVal = convertVolumeIfNeeded(maxInput.value);
+                maxInput.value = maxVal;
+            }
+
+            currInput.value = Math.max(1, Math.round(maxVal * ratio));
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const maxInput = document.getElementById('new-item-max-inventory');
+            const currInput = document.getElementById('new-item-inventory');
+
+            if (maxInput) {
+                maxInput.addEventListener('change', function(e) {
+                    let converted = convertVolumeIfNeeded(e.target.value);
+                    if (converted !== null) {
+                        e.target.value = converted;
+                        if (currInput.value === '') {
+                            currInput.value = converted;
+                        }
+                    }
+                });
+            }
+        });
+
+        function closeDrinkForm() {
+            editingMenuId = null;
+            document.getElementById('add-drink-form').classList.add('hidden');
+            document.getElementById('add-drink-form').classList.remove('flex');
+        }
+
         function openNewDrinkForm() {
             editingMenuId = null;
-            document.getElementById('add-drink-btn').innerText = "Add";
-            document.getElementById('add-drink-btn').className = "bg-green-600 hover:bg-green-500 text-white px-8 py-3 rounded-lg text-lg font-bold transition shadow";
+            document.getElementById('form-mode-title').innerText = "➕ Add New Drink";
+            document.getElementById('add-drink-btn').innerText = "Add Drink";
+            document.getElementById('add-drink-btn').className = "md:col-span-2 bg-green-600 hover:bg-green-500 text-white px-6 py-2.5 rounded-lg text-sm font-bold transition shadow-lg";
             document.getElementById('new-item-name').value = '';
             document.getElementById('new-item-category').value = 'Beer';
             document.getElementById('new-item-container').value = '';
+            document.getElementById('new-item-max-inventory').value = '';
+            document.getElementById('new-item-inventory').value = '';
             document.getElementById('new-item-abv').value = '';
             document.getElementById('new-item-cal').value = '';
             document.getElementById('new-item-notes').value = '';
-            document.getElementById('add-drink-form').classList.remove('hidden');
+            const form = document.getElementById('add-drink-form');
+            form.classList.remove('hidden');
+            form.classList.add('flex');
+            document.getElementById('new-item-name').focus();
         }
 
-        function editMenuItem(id, name, cat, abv, cal, notes, container) {
+        function editMenuItem(id, name, cat, abv, cal, notes, container, currentInv, maxInv) {
             editingMenuId = id;
-            document.getElementById('add-drink-btn').innerText = "Update";
-            document.getElementById('add-drink-btn').className = "bg-yellow-600 hover:bg-yellow-500 text-white px-8 py-3 rounded-lg text-lg font-bold transition shadow";
+            document.getElementById('form-mode-title').innerText = `✏️ Editing: ${name}`;
+            document.getElementById('add-drink-btn').innerText = "Save Changes";
+            document.getElementById('add-drink-btn').className = "md:col-span-2 bg-yellow-600 hover:bg-yellow-500 text-white px-6 py-2.5 rounded-lg text-sm font-bold transition shadow-lg";
             document.getElementById('new-item-name').value = name;
             document.getElementById('new-item-category').value = cat;
             document.getElementById('new-item-container').value = container || '';
+            document.getElementById('new-item-max-inventory').value = maxInv !== undefined && maxInv !== null && maxInv !== '' ? maxInv : (currentInv || '');
+            document.getElementById('new-item-inventory').value = currentInv !== undefined && currentInv !== null ? currentInv : '';
             document.getElementById('new-item-abv').value = abv;
             document.getElementById('new-item-cal').value = cal;
             document.getElementById('new-item-notes').value = notes;
-            document.getElementById('add-drink-form').classList.remove('hidden');
+            const form = document.getElementById('add-drink-form');
+            form.classList.remove('hidden');
+            form.classList.add('flex');
+            form.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
         }
 
         function addOrUpdateMenuItem() {
             const nameInput = document.getElementById('new-item-name');
             const catInput = document.getElementById('new-item-category');
             const containerInput = document.getElementById('new-item-container');
+            const maxInvInput = document.getElementById('new-item-max-inventory');
+            const inventoryInput = document.getElementById('new-item-inventory');
             const abvInput = document.getElementById('new-item-abv');
             const calInput = document.getElementById('new-item-cal');
             const notesInput = document.getElementById('new-item-notes');
-            
+
             if (!nameInput.value) return;
+
+            let maxVal = maxInvInput.value !== '' ? parseInt(maxInvInput.value) : null;
+            let currVal = inventoryInput.value !== '' ? parseInt(inventoryInput.value) : maxVal;
+            if (maxVal === null && currVal !== null) maxVal = currVal;
 
             let url = '/api/menu';
             let method = 'POST';
@@ -542,17 +1129,18 @@
             fetch(url, {
                 method: method,
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ 
-                    item_name: nameInput.value.trim(), 
+                body: JSON.stringify({
+                    item_name: nameInput.value.trim(),
                     category: catInput.value,
                     container: containerInput.value || null,
+                    max_inventory: maxVal,
+                    inventory: currVal,
                     abv: abvInput.value.trim() || null,
                     calories: calInput.value.trim() || null,
                     notes: notesInput.value.trim() || null
                 })
             }).then(() => {
-                document.getElementById('add-drink-form').classList.add('hidden');
-                editingMenuId = null;
+                closeDrinkForm();
                 loadMenuAdmin();
             });
         }
@@ -560,6 +1148,14 @@
         function removeMenuItem(itemId) {
             if(confirm("Remove this drink?")) {
                 fetch(`/api/menu/${itemId}`, { method: 'DELETE' }).then(() => loadMenuAdmin());
+            }
+        }
+
+        function resetKeg(itemId, name) {
+            if(confirm(`Are you sure you want to reset the inventory for ${name} back to 100% full?`)) {
+                fetch(`/api/menu/${itemId}/reset_keg`, { method: 'POST' }).then(() => {
+                    loadMenuAdmin();
+                });
             }
         }
 
@@ -578,15 +1174,15 @@
             fetch('/api/guests').then(res => res.json()).then(data => {
                 const container = document.getElementById('guest-list-container');
                 container.innerHTML = '';
-                if (data.guests.length === 0) container.innerHTML = '<p class="text-gray-500 italic text-xl">No guests yet.</p>';
+                if (data.guests.length === 0) container.innerHTML = '<p class="text-gray-500 italic text-base">No guests yet.</p>';
                 data.guests.forEach(g => {
                     let cutoffBtnClass = g.is_cut_off ? 'bg-orange-800 text-orange-200 hover:bg-orange-700' : 'bg-green-700 text-white hover:bg-green-600';
                     let cutoffText = g.is_cut_off ? 'Cut Off' : 'Active';
-                    
+
                     let ipText = g.ip ? g.ip : 'Local';
                     let locText = g.loc && g.loc !== 'Local' ? g.loc : '';
-                    let locBadge = locText ? `<span class="bg-gray-700 px-2 py-0.5 rounded text-[11px] ml-2 uppercase tracking-wider text-gray-300 border border-gray-600">${locText}</span>` : '';
-                    
+                    let locBadge = locText ? `<span class="bg-gray-700 px-1.5 py-0.5 rounded text-[10px] ml-1 uppercase tracking-wider text-gray-300 border border-gray-600">${locText}</span>` : '';
+
                     let deviceText = 'Unknown Device';
                     if (g.ua) {
                         if (g.ua.includes('iPhone') || g.ua.includes('iPad')) deviceText = '📱 iOS';
@@ -595,23 +1191,26 @@
                         else if (g.ua.includes('Windows')) deviceText = '💻 Windows';
                         else deviceText = '🌐 ' + g.ua.substring(0, 15) + '...';
                     }
-                    
+
                     container.innerHTML += `
-                        <div class="bg-gray-800 hover:bg-gray-700 rounded-xl flex justify-between items-center shadow-sm mb-3 transition overflow-hidden">
-                            <button onclick="viewGuestHistory('${g.name.replace(/'/g, "\\'")}', '${g.device_id}')" class="flex-1 text-left px-5 py-3 truncate">
+                        <div class="bg-gray-800 hover:bg-gray-700 rounded-xl flex justify-between items-center shadow-sm mb-2 transition overflow-hidden">
+                            <button onclick="viewGuestHistory('${g.name.replace(/'/g, "\\'")}', '${g.device_id}')" class="flex-1 text-left pl-4 pr-2 py-2 truncate">
                                 <div class="flex items-center">
-                                    <span class="font-bold text-xl text-gray-200">${g.name}</span>
-                                    <span class="text-gray-400 text-sm ml-3">View ➔</span>
+                                    <span class="font-bold text-lg text-gray-200">${g.name}</span>
+                                    <span class="text-gray-400 text-xs ml-2">View ➔</span>
                                 </div>
-                                <div class="text-xs text-gray-400 mt-1 flex items-center gap-2">
-                                    <span class="text-blue-400">${ipText}</span> 
+                                ${g.aliases ? `<div class="text-[11px] text-amber-400/90 italic truncate">Formerly: ${g.aliases}</div>` : ''}
+                                <div class="text-[11px] text-gray-400 flex items-center gap-1.5">
+                                    <span class="text-blue-400">${ipText}</span>
                                     ${locBadge}
                                     <span class="text-gray-500">• ${deviceText}</span>
                                 </div>
                             </button>
-                            <button onclick="editGuestName('${g.device_id}', '${g.name.replace(/'/g, "\\'")}')" class="px-5 py-4 text-xl font-bold bg-gray-900 hover:bg-gray-700 transition text-blue-400" title="Edit Name">✏️</button>
-                            <button onclick="toggleCutoff('${g.device_id}')" class="px-6 py-4 text-base font-bold border-l border-r border-gray-700 transition ${cutoffBtnClass}" title="Toggle Cutoff">${cutoffText}</button>
-                            <button onclick="deleteGuest('${g.device_id}', '${g.name.replace(/'/g, "\\'")}')" class="text-red-400 hover:text-red-300 px-6 py-4 text-xl font-bold bg-gray-900 hover:bg-gray-700 transition" title="Delete Guest">✕</button>
+                            <div class="flex shrink-0">
+                                <button onclick="editGuestName('${g.device_id}', '${g.name.replace(/'/g, "\\'")}')" class="px-3 py-3 text-sm font-bold bg-gray-900 hover:bg-gray-700 transition text-blue-400" title="Edit Name">✏️</button>
+                                <button onclick="toggleCutoff('${g.device_id}')" class="px-3 py-3 text-[11px] uppercase tracking-wider font-bold border-l border-r border-gray-700 transition ${cutoffBtnClass}" title="Toggle Cutoff">${cutoffText}</button>
+                                <button onclick="deleteGuest('${g.device_id}', '${g.name.replace(/'/g, "\\'")}')" class="text-red-400 hover:text-red-300 px-3 py-3 text-sm font-bold bg-gray-900 hover:bg-gray-700 transition" title="Delete Guest">✕</button>
+                            </div>
                         </div>
                     `;
                 });
@@ -632,10 +1231,10 @@
             document.getElementById('guest-box-title').innerHTML = `
                 <div class="flex items-center justify-between w-full">
                     <div>
-                        <button onclick="showGuestList()" class="text-lg font-bold text-blue-400 hover:text-blue-300 mr-4">⬅ Back</button>
-                        <span class="text-3xl font-bold text-gray-200">${name}'s Log</span>
+                        <button onclick="showGuestList()" class="text-sm font-bold text-blue-400 hover:text-blue-300 mr-3">⬅ Back</button>
+                        <span class="text-xl font-bold text-gray-200">${name}'s Log</span>
                     </div>
-                    <input type="date" value="${dateFilter}" onchange="viewGuestHistory('${name.replace(/'/g, "\\'")}', '${deviceId}', this.value)" class="bg-gray-800 text-white rounded-lg px-3 py-2 text-base border border-gray-600 focus:outline-none cursor-pointer">
+                    <input type="date" value="${dateFilter}" onchange="viewGuestHistory('${name.replace(/'/g, "\\'")}', '${deviceId}', this.value)" class="bg-gray-800 text-white rounded-md px-2 py-1 text-xs border border-gray-600 focus:outline-none cursor-pointer">
                 </div>
             `;
 
@@ -645,33 +1244,33 @@
             fetch(url).then(res => res.json()).then(data => {
                 const container = document.getElementById('guest-list-container');
                 container.innerHTML = '';
-                
+
                 if (data.status === "active") {
                     container.innerHTML += `
-                        <div class="bg-gray-900 border border-gray-700 p-4 rounded-xl mb-4 text-sm font-mono text-gray-400 space-y-2">
-                            <p><span class="text-gray-500 font-bold uppercase tracking-widest text-xs">IP Address:</span><br> <span class="select-all cursor-text text-gray-200 hover:text-white bg-gray-800 rounded px-1">${data.ip}</span></p>
-                            <p><span class="text-gray-500 font-bold uppercase tracking-widest text-xs">Location:</span><br> <span class="select-all cursor-text text-gray-200 hover:text-white bg-gray-800 rounded px-1">${data.location}</span></p>
-                            <p><span class="text-gray-500 font-bold uppercase tracking-widest text-xs">Browser/Device:</span><br> <span class="select-all cursor-text text-gray-200 hover:text-white bg-gray-800 rounded px-1 break-all">${data.user_agent}</span></p>
+                        <div class="bg-gray-900 border border-gray-700 p-3 rounded-lg mb-3 text-xs font-mono text-gray-400 space-y-1.5">
+                            <p><span class="text-gray-500 font-bold uppercase tracking-widest text-[10px]">IP Address:</span><br> <span class="select-all cursor-text text-gray-200 hover:text-white bg-gray-800 rounded px-1">${data.ip}</span></p>
+                            <p><span class="text-gray-500 font-bold uppercase tracking-widest text-[10px]">Location:</span><br> <span class="select-all cursor-text text-gray-200 hover:text-white bg-gray-800 rounded px-1">${data.location}</span></p>
+                            <p><span class="text-gray-500 font-bold uppercase tracking-widest text-[10px]">Browser/Device:</span><br> <span class="select-all cursor-text text-gray-200 hover:text-white bg-gray-800 rounded px-1 break-all">${data.user_agent}</span></p>
                         </div>
                     `;
                 }
 
                 if (data.history.length === 0) {
-                    container.innerHTML += '<p class="text-gray-500 italic text-xl mt-4">No orders found.</p>';
+                    container.innerHTML += '<p class="text-gray-500 italic text-sm mt-4">No orders found.</p>';
                     return;
                 }
-                
+
                 data.history.forEach(order => {
                     let textStyle = order.status === 'rejected' ? 'text-gray-500 line-through' : 'text-blue-300';
-                    let reasonText = order.reject_reason ? ` <span class="text-sm text-red-400 ml-2">(${order.reject_reason})</span>` : '';
-                    
+                    let reasonText = order.reject_reason ? ` <span class="text-xs text-red-400 ml-1">(${order.reject_reason})</span>` : '';
+
                     container.innerHTML += `
-                        <div class="bg-gray-800 p-4 rounded-xl flex justify-between items-center text-lg shadow-sm mb-3 group">
+                        <div class="bg-gray-800 p-3 rounded-lg flex justify-between items-center text-sm shadow-sm mb-2 group">
                             <div class="flex-1">
                                 <span class="${textStyle} font-semibold">${order.item_name}${reasonText}</span>
                             </div>
-                            <div class="flex items-center gap-4 shrink-0">
-                                <span class="text-gray-400 text-base">${order.time}</span>
+                            <div class="flex items-center gap-3 shrink-0">
+                                <span class="text-gray-400 text-xs">${order.time}</span>
                                 <button onclick="deleteOrder(${order.id}, '${name.replace(/'/g, "\\'")}', '${deviceId}')" class="text-gray-500 hover:text-red-400 transition-colors" title="Permanently delete order">🗑️</button>
                             </div>
                         </div>
@@ -682,23 +1281,25 @@
 
         function showGuestList() {
             document.getElementById('guest-box-title').innerHTML = `
-                <h2 class="text-3xl font-bold themed-title-4 drop-shadow-md">Guest Directory</h2>
+                <h2 class="text-2xl font-bold themed-title-4 drop-shadow-md">Guest Directory</h2>
                 <div class="flex items-center gap-2">
-                    <span class="text-sm text-gray-400 font-bold">Passcode:</span>
-                    <input type="text" id="daily-code-input" placeholder="Blank=Open" class="bg-gray-900 text-white border border-gray-600 rounded px-2 py-1.5 w-28 text-sm text-center focus:outline-none focus:border-blue-500 uppercase">
-                    <button onclick="updateDailyCode()" class="bg-purple-600 hover:bg-purple-500 px-4 py-1.5 rounded text-sm font-bold shadow transition">Save</button>
+                    <span class="text-xs text-gray-400 font-bold">Passcode:</span>
+                    <input type="text" id="daily-code-input" placeholder="Blank=Open" class="bg-gray-900 text-white border border-gray-600 rounded px-2 py-1 w-20 text-xs text-center focus:outline-none focus:border-blue-500 uppercase">
+                    <button onclick="updateDailyCode()" class="bg-purple-600 hover:bg-purple-500 px-3 py-1 rounded text-xs font-bold shadow transition">Save</button>
                 </div>
             `;
             loadDailyCode();
             loadGuests();
         }
 
+        loadThemeSetting();
         loadStatusToggles();
         loadDailyCode();
+        loadSpecialsTitle();
         loadDashboardData();
         loadMenuAdmin();
-        setInterval(loadDashboardData, 3000);
-        setInterval(updateTimers, 1000); 
+        setInterval(loadDashboardData, 1000);
+        setInterval(updateTimers, 1000);
     </script>
 </body>
 </html>

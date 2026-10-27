@@ -7,45 +7,83 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         :root {
-            --bg-body: #111827; 
+            --bg-body: #111827;
             --bg-panel: #1f2937;
             --border-panel: #374151;
+            --border-width: 2px;
+            --text-header: #60a5fa;
         }
         .theme-bills {
-            --bg-body: #002244; 
-            --bg-panel: rgba(0, 51, 141, 0.6); 
+            --bg-body: #001933;
+            --bg-panel: rgba(0, 51, 141, 0.72);
             --border-panel: #c60c30;
+            --border-width: 4px;
+            --text-header: #ffffff;
         }
         .theme-sabres {
-            --bg-body: #001f3f;
-            --bg-panel: rgba(0, 38, 84, 0.8);
+            --bg-body: #00152b;
+            --bg-panel: rgba(0, 38, 84, 0.82);
             --border-panel: #fcb514;
+            --border-width: 4px;
+            --text-header: #fcb514;
         }
-        
-        body { transition: background-color 1s ease-in-out; }
-        body.theme-active { background-color: var(--bg-body) !important; }
-        
-        .themed-panel { transition: all 1s ease-in-out; }
-        .theme-active .themed-panel { 
-            background-color: var(--bg-panel) !important; 
-            border-color: var(--border-panel) !important; 
+        .theme-bluejays {
+            --bg-body: #071324;
+            --bg-panel: rgba(9, 27, 51, 0.88);
+            --border-panel: #e8291c;
+            --border-width: 4px;
+            --text-header: #ffffff;
+        }
+        .theme-christmas {
+            --bg-body: #05190f;
+            --bg-panel: rgba(15, 56, 34, 0.88);
+            --border-panel: #dc2626;
+            --border-width: 4px;
+            --text-header: #fef08a;
         }
 
-        @keyframes marquee { 0% { transform: translateX(100vw); } 100% { transform: translateX(-100%); } }
-        .animate-marquee { display: inline-block; white-space: nowrap; animation-name: marquee; animation-timing-function: linear; animation-iteration-count: infinite; }
-        
-        @keyframes progress { 0% { width: 0%; } 100% { width: 100%; } }
+        body {
+            background-color: var(--bg-body) !important;
+            transition: background-color 1s ease-in-out;
+            user-select: none;
+        }
+        .themed-panel {
+            background-color: var(--bg-panel) !important;
+            border-color: var(--border-panel) !important;
+            transition: all 1s ease-in-out;
+        }
+        .themed-header-text {
+            color: var(--text-header) !important;
+            transition: color 1s ease-in-out;
+        }
+
+        @keyframes marquee {
+            0% { transform: translateX(100vw); }
+            100% { transform: translateX(-100%); }
+        }
+        .animate-marquee {
+            display: inline-block;
+            white-space: nowrap;
+            animation-name: marquee;
+            animation-timing-function: linear;
+            animation-iteration-count: infinite;
+        }
+
+        @keyframes progress {
+            0% { width: 0%; }
+            100% { width: 100%; }
+        }
         .animate-progress { animation: progress 15s linear infinite; }
-        
+
         @keyframes flashGoal {
-            0%, 100% { background-color: #1e3a8a; } 
-            50% { background-color: #ca8a04; } 
+            0%, 100% { background-color: #1e3a8a; }
+            50% { background-color: #ca8a04; }
         }
         .animate-flash-goal { animation: flashGoal 0.5s infinite; }
 
         @keyframes flashTd {
-            0%, 100% { background-color: #991b1b; } 
-            50% { background-color: #1e40af; } 
+            0%, 100% { background-color: #991b1b; }
+            50% { background-color: #1e40af; }
         }
         .animate-flash-td { animation: flashTd 0.5s infinite; }
 
@@ -54,28 +92,63 @@
             50% { transform: scale(1.15); }
         }
         .animate-zoom-bounce { animation: zoomBounce 0.6s infinite alternate ease-in-out; }
-        
+
         @keyframes spinSlow {
             from { transform: rotate(0deg); }
             to { transform: rotate(360deg); }
         }
         .animate-spin-slow { animation: spinSlow 3s linear infinite; }
-        
-        /* --- NEW: Party Mode Overflow Animation --- */
+
         @keyframes partyLiquid {
             0% { filter: hue-rotate(0deg); }
             100% { filter: hue-rotate(360deg); }
         }
         .animate-party-liquid { animation: partyLiquid 2s linear infinite; }
+
+        #dash-snow-container {
+            display: none;
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            overflow: hidden;
+            z-index: 45;
+        }
+        body.theme-christmas #dash-snow-container {
+            display: block;
+        }
+        .dash-snowflake {
+            position: absolute;
+            top: -5%;
+            color: #ffffff;
+            user-select: none;
+            pointer-events: none;
+            will-change: transform;
+            animation-name: dashSnowfall, dashSnowsway;
+            animation-timing-function: linear, ease-in-out;
+            animation-iteration-count: infinite, infinite;
+        }
+        @keyframes dashSnowfall {
+            0% { top: -5%; }
+            100% { top: 105%; }
+        }
+        @keyframes dashSnowsway {
+            0%, 100% { transform: translateX(0px) rotate(0deg); }
+            50% { transform: translateX(28px) rotate(180deg); }
+        }
     </style>
 </head>
-<body class="bg-gray-900 text-white h-screen w-screen overflow-hidden flex flex-col font-sans relative">
-    
+<body class="text-white h-screen w-screen overflow-hidden flex flex-col font-sans relative">
+
+    <!-- Falling Snow Layer (Active in Christmas Theme) -->
+    <div id="dash-snow-container"></div>
+
+    <!-- Goal / Touchdown Full-Screen Alert Overlay -->
     <div id="event-overlay" class="absolute inset-0 z-50 hidden opacity-0 transition-opacity duration-300 flex items-center justify-center"></div>
 
-    <div class="bg-gray-800 shrink-0 z-20 shadow-xl flex flex-col relative themed-panel">
+    <!-- Top Header Banner -->
+    <div class="bg-gray-800 shrink-0 z-20 shadow-xl flex flex-col relative themed-panel border-b-2">
         <div class="p-6 text-center">
-            <h1 class="text-6xl font-black text-blue-400 tracking-widest uppercase flex items-center justify-center gap-6">
+            <h1 id="dash-main-title" class="text-6xl font-black themed-header-text tracking-widest uppercase flex items-center justify-center gap-6 drop-shadow-md">
                 🏒 Basement Bar 🏈
             </h1>
         </div>
@@ -86,58 +159,81 @@
         </div>
     </div>
 
-    <div class="flex-1 relative overflow-hidden bg-black">
-        
+    <!-- Rotating Views Container -->
+    <div class="flex-1 relative overflow-hidden">
+
+        <!-- VIEW 1: ORDERS & LEADERBOARDS -->
         <div id="view-board" class="absolute inset-0 flex flex-col gap-6 p-6 opacity-100 transition-opacity duration-1000 z-10">
             <div class="flex-[3] bg-gray-800 rounded-3xl p-6 border-4 border-green-500 shadow-[0_0_40px_rgba(34,197,94,0.3)] flex flex-col overflow-hidden relative themed-panel">
-                <h2 class="text-4xl font-black text-green-400 mb-4 uppercase tracking-widest border-b-4 border-gray-700 pb-2 shrink-0">Now Pouring</h2>
+                <h2 class="text-4xl font-black text-green-400 mb-4 uppercase tracking-widest border-b-4 border-gray-700/80 pb-2 shrink-0">Now Pouring</h2>
                 <div id="queue" class="flex-1 flex flex-col gap-3 justify-start overflow-hidden"></div>
             </div>
             <div class="flex-[4] bg-gray-800 rounded-3xl p-8 border-4 border-blue-500 shadow-[0_0_30px_rgba(59,130,246,0.2)] flex flex-col overflow-hidden relative themed-panel">
-                <h2 class="text-4xl font-black text-blue-400 mb-6 uppercase tracking-widest border-b-4 border-gray-700 pb-4 shrink-0">📅 Tonight's Tab</h2>
+                <h2 class="text-4xl font-black text-blue-400 mb-6 uppercase tracking-widest border-b-4 border-gray-700/80 pb-4 shrink-0">📅 Tonight's Tab</h2>
                 <div id="tonight-tab" class="flex-1 flex flex-col justify-between"></div>
             </div>
             <div id="cycling-container" class="flex-[5] bg-gray-800 rounded-3xl p-8 border-4 border-yellow-500 shadow-[0_0_30px_rgba(234,179,8,0.2)] flex flex-col overflow-hidden relative transition-all duration-500 opacity-100 themed-panel"></div>
         </div>
 
-        <div id="view-liquid" class="absolute inset-0 flex flex-col items-center justify-center p-8 opacity-0 pointer-events-none transition-opacity duration-1000 z-10 bg-gray-900 themed-panel">
-            <h2 id="liquid-title" class="text-6xl font-black text-blue-400 tracking-widest uppercase mb-12">The Liquid Diet</h2>
-            <div id="liquid-container" class="relative w-2/3 h-2/3 border-[16px] border-gray-600 rounded-b-[60px] border-t-0 flex flex-col justify-end overflow-hidden shadow-[0_0_80px_rgba(59,130,246,0.2)] transition-all duration-500">
-                <div id="liquid-fill" class="bg-blue-600 w-full transition-all duration-[3000ms] ease-in-out relative flex flex-col items-center justify-center" style="height: 0%">
-                    <div class="absolute top-0 w-full h-6 bg-blue-400/50"></div>
-                    <div class="absolute inset-0 bg-gradient-to-t from-blue-800 to-transparent"></div>
+        <!-- VIEW 2: LIQUID DIET & KEG LEVELS -->
+        <div id="view-stats" class="absolute inset-0 flex flex-col p-10 opacity-0 pointer-events-none transition-opacity duration-1000 z-10 gap-10">
+            <div class="flex-[4] bg-gray-800/90 rounded-3xl p-8 border-4 border-gray-700 flex flex-col items-center justify-center themed-panel shadow-2xl">
+                <h2 id="liquid-title" class="text-6xl font-black text-blue-400 tracking-widest uppercase mb-8 text-center">The Liquid Diet</h2>
+                <div id="liquid-container" class="relative w-[85%] flex-1 border-[16px] border-gray-600 rounded-b-[60px] border-t-0 flex flex-col justify-end overflow-hidden shadow-[0_0_60px_rgba(59,130,246,0.25)] transition-all duration-500 bg-gray-900/70">
+                    <div id="liquid-fill" class="bg-blue-600 w-full transition-all duration-[3000ms] ease-in-out relative flex flex-col items-center justify-center" style="height: 0%">
+                        <div class="absolute top-0 w-full h-8 bg-blue-400/50"></div>
+                        <div class="absolute inset-0 bg-gradient-to-t from-blue-900 to-blue-500/50"></div>
+                    </div>
+                    <div class="absolute inset-0 flex flex-col items-center justify-center text-center z-10 drop-shadow-2xl">
+                        <h3 class="text-8xl font-black text-white" id="liquid-cals">0 Cals</h3>
+                        <p class="text-4xl font-bold text-yellow-300 mt-6 bg-black/60 px-8 py-4 rounded-3xl border-2 border-yellow-600 shadow-xl" id="liquid-wings">~0 Bar Bill Wings 🍗</p>
+                    </div>
                 </div>
-                <div class="absolute inset-0 flex flex-col items-center justify-center text-center z-10 drop-shadow-2xl">
-                    <h3 class="text-8xl font-black text-white" id="liquid-cals">0 Cals</h3>
-                    <p class="text-5xl font-bold text-yellow-300 mt-6 bg-black/50 px-8 py-4 rounded-3xl border border-yellow-600" id="liquid-wings">Equivalent to ~0 Bar Bill Wings 🍗</p>
-                </div>
+            </div>
+
+            <div class="flex-[3] bg-gray-800/90 rounded-3xl p-8 border-4 border-gray-700 flex flex-col themed-panel shadow-2xl overflow-hidden">
+                <h2 class="text-6xl font-black text-green-400 tracking-widest uppercase mb-8 text-center drop-shadow-md shrink-0">Currently On Tap</h2>
+                <div id="keg-list" class="flex-1 flex flex-col justify-center gap-10 w-full overflow-y-auto pr-4"></div>
             </div>
         </div>
 
-        <div id="view-awards" class="absolute inset-0 flex flex-col p-8 opacity-0 pointer-events-none transition-opacity duration-1000 z-10 bg-gray-900 themed-panel">
-            <h2 class="text-6xl font-black text-yellow-400 tracking-widest uppercase mb-12 text-center">🏆 Game Day Awards 🏆</h2>
+        <!-- VIEW 3: GAME DAY AWARDS -->
+        <div id="view-awards" class="absolute inset-0 flex flex-col p-8 opacity-0 pointer-events-none transition-opacity duration-1000 z-10">
+            <h2 class="text-6xl font-black text-yellow-400 tracking-widest uppercase mb-10 text-center drop-shadow-lg">🏆 Tonight's Awards 🏆</h2>
             <div id="awards-grid" class="flex-1 grid grid-cols-2 gap-8 content-start"></div>
         </div>
 
-        <div id="view-qrcode" class="absolute inset-0 flex flex-col p-8 opacity-0 pointer-events-none transition-opacity duration-1000 z-10 bg-gray-900 themed-panel gap-8 items-center justify-center">
-            <div class="flex-1 flex flex-col items-center justify-center border-b-4 border-gray-700/50 pb-8 w-full">
-                <h2 class="text-6xl font-black text-blue-400 tracking-widest uppercase mb-10">Scan to Order</h2>
+        <!-- VIEW 4: QR CODE & PASSCODE -->
+        <div id="view-qrcode" class="absolute inset-0 flex flex-col p-8 opacity-0 pointer-events-none transition-opacity duration-1000 z-10 gap-8 items-center justify-center">
+            <div class="flex-1 bg-gray-800/90 rounded-3xl p-8 border-4 border-gray-700 flex flex-col items-center justify-center w-full themed-panel shadow-2xl">
+                <h2 class="text-6xl font-black themed-header-text tracking-widest uppercase mb-8">Scan to Order</h2>
                 <div class="bg-white p-6 rounded-[40px] shadow-[0_0_80px_rgba(59,130,246,0.3)]">
-                    <img src="/qrcode_mafiabasementbar.com.png" alt="QR Code" class="w-[450px] h-[450px] object-contain rounded-2xl">
+                    <img src="/qrcode_mafiabasementbar.com.png" alt="QR Code" class="w-[420px] h-[420px] object-contain rounded-2xl">
                 </div>
-                <p class="text-4xl font-bold text-gray-300 mt-10 uppercase tracking-widest">mafiabasementbar.com</p>
+                <p class="text-4xl font-bold text-gray-200 mt-8 uppercase tracking-widest">mafiabasementbar.com</p>
             </div>
-            <div class="flex-1 flex flex-col items-center justify-center pt-4 w-full">
-                <h2 class="text-6xl font-black text-yellow-400 tracking-widest uppercase mb-10 text-center">Daily Passcode</h2>
-                <div class="bg-gray-800 p-12 rounded-[40px] border-4 border-yellow-500 shadow-[0_0_80px_rgba(234,179,8,0.2)] w-[90%] max-w-2xl flex items-center justify-center min-h-[300px]">
+            <div class="flex-1 bg-gray-800/90 rounded-3xl p-8 border-4 border-gray-700 flex flex-col items-center justify-center w-full themed-panel shadow-2xl">
+                <h2 class="text-6xl font-black text-yellow-400 tracking-widest uppercase mb-8 text-center">Daily Passcode</h2>
+                <div class="bg-gray-900/90 p-10 rounded-[40px] border-4 border-yellow-500 shadow-[0_0_80px_rgba(234,179,8,0.2)] w-[90%] max-w-2xl flex items-center justify-center min-h-[260px]">
                     <p id="display-passcode" class="text-8xl font-black text-white tracking-widest uppercase break-all text-center">...</p>
                 </div>
-                <p class="text-3xl font-bold text-gray-400 mt-10 text-center px-12">Enter this code on your phone to unlock the menu.</p>
+                <p class="text-3xl font-bold text-gray-300 mt-8 text-center px-12">Enter this code on your phone to unlock the menu.</p>
             </div>
         </div>
 
     </div>
 
+    <!-- Hover Navigation Bar -->
+    <div class="absolute bottom-16 left-0 right-0 h-16 bg-black/70 backdrop-blur-md border-t border-gray-700 z-40 flex items-center justify-center gap-4 px-6 opacity-0 hover:opacity-100 transition-opacity duration-300">
+        <button onclick="manualJump('view-board', 0)" class="nav-btn bg-gray-800 hover:bg-blue-600 text-white font-bold py-2 px-6 rounded-lg transition border border-gray-600 text-xl tracking-wider">📋 Orders</button>
+        <button onclick="manualJump('view-stats', 1)" class="nav-btn bg-gray-800 hover:bg-green-600 text-white font-bold py-2 px-6 rounded-lg transition border border-gray-600 text-xl tracking-wider">📊 Stats & Taps</button>
+        <button onclick="manualJump('view-awards', 2)" class="nav-btn bg-gray-800 hover:bg-yellow-600 text-white font-bold py-2 px-6 rounded-lg transition border border-gray-600 text-xl tracking-wider">🏆 Awards</button>
+        <button onclick="manualJump('view-qrcode', 3)" class="nav-btn bg-gray-800 hover:bg-purple-600 text-white font-bold py-2 px-6 rounded-lg transition border border-gray-600 text-xl tracking-wider">📱 QR Code</button>
+        <div class="w-px h-8 bg-gray-600 mx-2"></div>
+        <button id="play-pause-btn" onclick="toggleAutoRotate()" class="bg-gray-800 hover:bg-gray-700 text-white font-bold py-2 px-6 rounded-lg transition border border-gray-600 text-xl tracking-wider">⏸️ Pause</button>
+    </div>
+
+    <!-- Bottom Wall of Shame Ticker -->
     <div class="h-16 bg-red-950 border-t-[6px] border-red-700 flex items-center overflow-hidden shrink-0 relative z-20">
         <div class="absolute left-0 bg-red-700 h-full flex items-center px-4 z-30 font-black text-2xl tracking-widest border-r-4 border-red-900 shadow-xl">🚨 WALL OF SHAME</div>
         <div class="flex-1 relative h-full flex items-center w-full pl-[250px]">
@@ -146,57 +242,65 @@
     </div>
 
     <script>
-        let currentView = 1; 
+        const views = ['view-board', 'view-stats', 'view-awards', 'view-qrcode'];
+        let currentView = 0;
+        let autoRotateInterval = null;
+        let isPaused = false;
         let cycleState = 'leaderboard';
         let statsCache = { all_time: [], popular: [] };
         let currentTeam = 'none';
+        let currentEventId = null;
 
-        function fetchPasscode() {
-            fetch('/api/settings/code').then(r => r.json()).then(data => {
-                const el = document.getElementById('display-passcode');
-                if (data.code && data.code.trim() !== '') {
-                    el.innerText = data.code;
-                    el.className = "text-8xl font-black text-white tracking-widest uppercase break-all text-center";
-                } else {
-                    el.innerText = "OPEN";
-                    el.className = "text-8xl font-black text-green-400 tracking-widest uppercase break-all text-center";
-                }
-            }).catch(e => {});
+        function initDashSnow() {
+            const container = document.getElementById('dash-snow-container');
+            if (!container) return;
+            container.innerHTML = '';
+            const symbols = ['❄', '❅', '❆', '•', '•'];
+            for (let i = 0; i < 42; i++) {
+                const span = document.createElement('span');
+                span.className = 'dash-snowflake';
+                span.innerText = symbols[i % symbols.length];
+                span.style.left = (Math.random() * 100) + '%';
+                span.style.fontSize = (Math.random() * 14 + 8).toFixed(1) + 'px';
+                span.style.opacity = (Math.random() * 0.4 + 0.15).toFixed(2);
+                span.style.animationDuration = (Math.random() * 10 + 9).toFixed(1) + 's, ' + (Math.random() * 4 + 3).toFixed(1) + 's';
+                span.style.animationDelay = (Math.random() * -18).toFixed(1) + 's, 0s';
+                container.appendChild(span);
+            }
         }
-        setInterval(fetchPasscode, 5000);
-        fetchPasscode();
 
-        function fetchCurrentEvent() {
+        function applyTheme(team) {
+            document.body.classList.remove('theme-bills', 'theme-sabres', 'theme-christmas', 'theme-bluejays');
+            const titleEl = document.getElementById('dash-main-title');
+
+            if (team === 'bills') {
+                document.body.classList.add('theme-bills');
+                if (titleEl) titleEl.innerHTML = '🏈 Basement Bar 🏈';
+            } else if (team === 'sabres') {
+                document.body.classList.add('theme-sabres');
+                if (titleEl) titleEl.innerHTML = '🏒 Basement Bar 🏒';
+            } else if (team === 'christmas') {
+                document.body.classList.add('theme-christmas');
+                if (titleEl) titleEl.innerHTML = '🎄 Basement Bar 🎅';
+            } else if (team === 'bluejays') {
+                document.body.classList.add('theme-bluejays');
+                if (titleEl) titleEl.innerHTML = '⚾ Basement Bar 🧢';
+            } else {
+                if (titleEl) titleEl.innerHTML = '🏒 Basement Bar 🏈';
+            }
+        }
+
+        function pollEventsAndTheme() {
             fetch('/api/event/current').then(r => r.json()).then(data => {
                 if (data.team && data.team !== currentTeam) {
                     currentTeam = data.team;
                     applyTheme(currentTeam);
                 }
-            }).catch(e => {});
-        }
-        setInterval(fetchCurrentEvent, 5000);
-        fetchCurrentEvent(); 
 
-        function applyTheme(team) {
-            if (team === 'bills') {
-                document.body.classList.add('theme-active', 'theme-bills');
-                document.body.classList.remove('theme-sabres');
-            } else if (team === 'sabres') {
-                document.body.classList.add('theme-active', 'theme-sabres');
-                document.body.classList.remove('theme-bills');
-            } else {
-                document.body.classList.remove('theme-active', 'theme-bills', 'theme-sabres');
-            }
-        }
-
-        let currentEventId = null;
-        setInterval(() => {
-            fetch('/api/event/current').then(r => r.json()).then(data => {
                 const overlay = document.getElementById('event-overlay');
-                
                 if (data.id !== currentEventId) {
                     currentEventId = data.id;
-                    
+
                     if (data.event === 'goal') {
                         overlay.className = 'absolute inset-0 z-50 flex items-center justify-center animate-flash-goal transition-opacity duration-300 opacity-100 p-6 overflow-hidden';
                         overlay.innerHTML = `
@@ -229,38 +333,81 @@
                         setTimeout(() => overlay.classList.add('hidden'), 300);
                     }
                 }
-            }).catch(e => console.error("Event poll error:", e));
-        }, 1000);
+            }).catch(() => {});
+        }
 
-        function rotateViews() {
-            const views = ['view-board', 'view-liquid', 'view-awards', 'view-qrcode'];
+        function fetchPasscode() {
+            fetch('/api/settings/code').then(r => r.json()).then(data => {
+                const el = document.getElementById('display-passcode');
+                if (data.code && data.code.trim() !== '') {
+                    el.innerText = data.code;
+                    el.className = "text-8xl font-black text-white tracking-widest uppercase break-all text-center";
+                } else {
+                    el.innerText = "OPEN";
+                    el.className = "text-8xl font-black text-green-400 tracking-widest uppercase break-all text-center";
+                }
+            }).catch(() => {});
+        }
+
+        function applyView(targetIndex) {
             views.forEach((id, index) => {
                 const el = document.getElementById(id);
-                if (index === currentView) {
+                const navBtn = document.querySelectorAll('.nav-btn')[index];
+                if (index === targetIndex) {
                     el.style.opacity = '1';
                     el.classList.remove('pointer-events-none');
+                    if (navBtn) navBtn.classList.add('ring-2', 'ring-white');
                 } else {
                     el.style.opacity = '0';
                     el.classList.add('pointer-events-none');
+                    if (navBtn) navBtn.classList.remove('ring-2', 'ring-white');
                 }
             });
-            currentView = (currentView + 1) % views.length;
+            currentView = targetIndex;
         }
-        setInterval(rotateViews, 15000);
+
+        function rotateViews() {
+            if (!isPaused) {
+                applyView((currentView + 1) % views.length);
+            }
+        }
+
+        function startRotation() {
+            if (autoRotateInterval) clearInterval(autoRotateInterval);
+            autoRotateInterval = setInterval(rotateViews, 15000);
+        }
+
+        function manualJump(viewId, index) {
+            applyView(index);
+            isPaused = true;
+            document.getElementById('play-pause-btn').innerHTML = "▶️ Play";
+            startRotation();
+        }
+
+        function toggleAutoRotate() {
+            isPaused = !isPaused;
+            const btn = document.getElementById('play-pause-btn');
+            if (isPaused) {
+                btn.innerHTML = "▶️ Play";
+            } else {
+                btn.innerHTML = "⏸️ Pause";
+                startRotation();
+            }
+        }
 
         function updateCycleUI() {
             const container = document.getElementById('cycling-container');
             container.style.opacity = '0';
-            
+
             setTimeout(() => {
                 if (cycleState === 'leaderboard') {
-                    let html = '<h2 class="text-4xl font-black text-yellow-400 mb-6 uppercase tracking-widest border-b-4 border-gray-700 pb-4 shrink-0">🏆 All-Time Heavy Hitters</h2><div class="flex-1 flex flex-col justify-between">';
+                    let html = '<h2 class="text-4xl font-black text-yellow-400 mb-6 uppercase tracking-widest border-b-4 border-gray-700/80 pb-4 shrink-0">🏆 All-Time Heavy Hitters</h2><div class="flex-1 flex flex-col justify-between">';
                     if (statsCache.all_time.length === 0) {
-                        html += '<div class="text-4xl text-gray-500 italic flex items-center justify-center h-full">No drinks poured yet</div>';
+                        html += '<div class="text-4xl text-gray-400 italic flex items-center justify-center h-full">No drinks poured yet</div>';
                     } else {
                         statsCache.all_time.slice(0, 5).forEach((g, i) => {
                             let rank = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : '🍺';
-                            html += `<div class="flex justify-between items-center text-4xl gap-4"><span class="font-bold text-gray-200 break-words leading-tight flex-1">${rank} ${g.name}</span><span class="font-black text-yellow-400 text-5xl bg-yellow-900/40 px-4 py-2 rounded-xl border border-yellow-700 shrink-0">${g.count}</span></div>`;
+                            html += `<div class="flex justify-between items-center text-4xl gap-4"><span class="font-bold text-gray-100 break-words leading-tight flex-1">${rank} ${g.name}</span><span class="font-black text-yellow-400 text-5xl bg-yellow-900/40 px-4 py-2 rounded-xl border border-yellow-700 shrink-0">${g.count}</span></div>`;
                         });
                     }
                     html += '</div>';
@@ -268,12 +415,12 @@
                     container.className = "flex-[5] bg-gray-800 rounded-3xl p-8 border-4 border-yellow-500 shadow-[0_0_30px_rgba(234,179,8,0.2)] flex flex-col overflow-hidden relative transition-all duration-500 opacity-100 themed-panel";
                     cycleState = 'popular';
                 } else {
-                    let html = '<h2 class="text-4xl font-black text-purple-400 mb-6 uppercase tracking-widest border-b-4 border-gray-700 pb-4 shrink-0">🔥 All-Time Favorites</h2><div class="flex-1 flex flex-col justify-between">';
+                    let html = '<h2 class="text-4xl font-black text-purple-400 mb-6 uppercase tracking-widest border-b-4 border-gray-700/80 pb-4 shrink-0">🔥 All-Time Favorites</h2><div class="flex-1 flex flex-col justify-between">';
                     if (statsCache.popular.length === 0) {
-                        html += '<div class="text-4xl text-gray-500 italic flex items-center justify-center h-full">No data yet</div>';
+                        html += '<div class="text-4xl text-gray-400 italic flex items-center justify-center h-full">No data yet</div>';
                     } else {
                         statsCache.popular.slice(0, 5).forEach(d => {
-                            html += `<div class="flex justify-between items-center text-4xl gap-4"><span class="font-bold text-gray-200 break-words leading-tight flex-1">${d.name}</span><span class="font-black text-purple-400 text-5xl bg-purple-900/40 px-4 py-2 rounded-xl border border-purple-700 shrink-0">${d.count}</span></div>`;
+                            html += `<div class="flex justify-between items-center text-4xl gap-4"><span class="font-bold text-gray-100 break-words leading-tight flex-1">${d.name}</span><span class="font-black text-purple-400 text-5xl bg-purple-900/40 px-4 py-2 rounded-xl border border-purple-700 shrink-0">${d.count}</span></div>`;
                         });
                     }
                     html += '</div>';
@@ -290,25 +437,27 @@
                 const q = document.getElementById('queue');
                 q.innerHTML = '';
                 if (data.orders.length === 0) {
-                    q.innerHTML = '<div class="text-4xl text-gray-500 italic h-full flex items-center justify-center font-bold">Bar is clear!</div>';
+                    q.innerHTML = '<div class="text-4xl text-gray-400 italic h-full flex items-center justify-center font-bold">Bar is clear!</div>';
                 } else {
                     data.orders.slice(0, 3).forEach((order, index) => {
-                        let extraClass = index === 0 ? 'bg-gray-700 border-l-[8px] border-green-500 animate-pulse' : 'bg-gray-700/50 border-l-[4px] border-blue-500';
+                        let extraClass = index === 0 ? 'bg-gray-900/80 border-l-[8px] border-green-500 animate-pulse' : 'bg-gray-900/50 border-l-[4px] border-blue-500';
                         let nameColor = index === 0 ? 'text-green-300' : 'text-white';
                         q.innerHTML += `<div class="flex justify-between items-center p-3 rounded-2xl ${extraClass} shadow-lg gap-4 shrink-0"><div class="text-3xl font-black ${nameColor} uppercase break-words leading-tight w-[45%]">${order.guest_name}</div><div class="text-2xl text-blue-200 font-bold text-right break-words leading-tight w-[50%]">${order.item_name}</div></div>`;
                     });
-                    if (data.orders.length > 3) q.innerHTML += `<div class="text-center text-2xl text-gray-400 font-bold shrink-0">+ ${data.orders.length - 3} more waiting</div>`;
+                    if (data.orders.length > 3) {
+                        q.innerHTML += `<div class="text-center text-2xl text-gray-300 font-bold shrink-0">+ ${data.orders.length - 3} more waiting</div>`;
+                    }
                 }
-            });
+            }).catch(() => {});
 
             fetch('/api/stats').then(r => r.json()).then(data => {
                 const tt = document.getElementById('tonight-tab');
                 tt.innerHTML = '';
                 if (data.tonight.length === 0) {
-                    tt.innerHTML = '<div class="text-4xl text-gray-500 italic flex items-center justify-center h-full">Quiet night so far...</div>';
+                    tt.innerHTML = '<div class="text-4xl text-gray-400 italic flex items-center justify-center h-full">Quiet night so far...</div>';
                 } else {
-                    data.tonight.slice(0, 5).forEach((g) => {
-                        tt.innerHTML += `<div class="flex justify-between items-center text-4xl gap-4"><span class="font-bold text-gray-200 break-words leading-tight flex-1">${g.name}</span><span class="font-black text-blue-400 text-5xl bg-blue-900/40 px-4 py-2 rounded-xl border border-blue-700 shrink-0">${g.count}</span></div>`;
+                    data.tonight.slice(0, 5).forEach(g => {
+                        tt.innerHTML += `<div class="flex justify-between items-center text-4xl gap-4"><span class="font-bold text-gray-100 break-words leading-tight flex-1">${g.name}</span><span class="font-black text-blue-400 text-5xl bg-blue-900/40 px-4 py-2 rounded-xl border border-blue-700 shrink-0">${g.count}</span></div>`;
                     });
                 }
                 statsCache.all_time = data.all_time;
@@ -319,31 +468,30 @@
                 let cals = data.liquid_diet.total_cals;
                 document.getElementById('liquid-cals').innerText = cals.toLocaleString() + ' Cals';
                 document.getElementById('liquid-wings').innerText = `Equivalent to ~${Math.floor(cals / 100)} Bar Bill Wings 🍗`;
-                
+
                 let fillPct = Math.min(100, (drinks / 30) * 100);
                 let liquidFill = document.getElementById('liquid-fill');
                 let liquidContainer = document.getElementById('liquid-container');
                 let liquidTitle = document.getElementById('liquid-title');
-                
+
                 liquidFill.style.height = fillPct + '%';
 
-                // --- NEW: Party Mode Toggle ---
                 if (drinks >= 30) {
                     liquidFill.classList.add('animate-party-liquid');
                     liquidContainer.classList.add('animate-party-liquid');
                     liquidTitle.innerHTML = "🚨 TANK OVERFLOW! 🚨";
-                    liquidTitle.className = "text-7xl font-black text-red-500 tracking-widest uppercase mb-12 animate-zoom-bounce drop-shadow-[0_0_20px_rgba(239,68,68,0.8)]";
+                    liquidTitle.className = "text-7xl font-black text-red-500 tracking-widest uppercase mb-8 animate-zoom-bounce drop-shadow-[0_0_20px_rgba(239,68,68,0.8)]";
                 } else {
                     liquidFill.classList.remove('animate-party-liquid');
                     liquidContainer.classList.remove('animate-party-liquid');
                     liquidTitle.innerHTML = "The Liquid Diet";
-                    liquidTitle.className = "text-6xl font-black text-blue-400 tracking-widest uppercase mb-12 themed-text-1";
+                    liquidTitle.className = "text-6xl font-black themed-header-text tracking-widest uppercase mb-8";
                 }
 
                 const aw = document.getElementById('awards-grid');
                 aw.innerHTML = '';
                 if (data.superlatives.length === 0) {
-                    aw.innerHTML = '<div class="col-span-2 text-4xl text-gray-500 italic flex items-center justify-center h-full mt-20">Start pouring to unlock awards!</div>';
+                    aw.innerHTML = '<div class="col-span-2 text-4xl text-gray-400 italic flex items-center justify-center h-full mt-20">Start pouring to unlock awards!</div>';
                 } else {
                     data.superlatives.forEach(s => {
                         aw.innerHTML += `
@@ -352,7 +500,7 @@
                                 <div class="flex-1 overflow-hidden">
                                     <h3 class="text-3xl font-black text-yellow-400 uppercase tracking-widest">${s.title}</h3>
                                     <p class="text-5xl font-bold text-white mt-2 truncate">${s.name}</p>
-                                    <p class="text-2xl text-gray-400 italic mt-2">${s.desc}</p>
+                                    <p class="text-2xl text-gray-300 italic mt-2">${s.desc}</p>
                                 </div>
                             </div>
                         `;
@@ -362,28 +510,66 @@
                 let shameText = "🍾 BAR IS OPEN! NO OFFENSES YET.";
                 const ticker = document.getElementById('shame-ticker');
                 let itemCount = 1;
-                
+
                 if (data.wall_of_shame.cut_offs.length > 0 || data.wall_of_shame.rejects.length > 0) {
                     let items = [];
                     data.wall_of_shame.cut_offs.forEach(name => items.push(`🚫 CUT OFF: ${name} 🚫`));
                     data.wall_of_shame.rejects.forEach(r => items.push(`❌ REJECTED - ${r.name}: "${r.reason}"`));
-                    
+
                     itemCount = items.length;
                     shameText = items.join(" &nbsp;&nbsp;&nbsp;&nbsp;✦&nbsp;&nbsp;&nbsp;&nbsp; ");
                 } else {
-                    shameText = shameText + " ••• " + shameText + " ••• " + shameText; 
+                    shameText = shameText + " ••• " + shameText + " ••• " + shameText;
                 }
-                
+
                 ticker.innerHTML = shameText;
-                
-                let duration = Math.max(25, itemCount * 7);
-                ticker.style.animationDuration = `${duration}s`;
-            });
+                ticker.style.animationDuration = `${Math.max(25, itemCount * 7)}s`;
+            }).catch(() => {});
         }
 
+        function loadKegData() {
+            fetch('/api/inventory/active').then(r => r.json()).then(data => {
+                const container = document.getElementById('keg-list');
+                container.innerHTML = '';
+                if (data.kegs.length === 0) {
+                    container.innerHTML = '<div class="text-5xl text-gray-400 italic text-center">No active kegs</div>';
+                    return;
+                }
+                data.kegs.forEach(keg => {
+                    let barColor = 'bg-green-500';
+                    let shadowColor = 'rgba(34,197,94,0.6)';
+                    if (keg.percent <= 30) { barColor = 'bg-yellow-500'; shadowColor = 'rgba(234,179,8,0.6)'; }
+                    if (keg.percent <= 10) { barColor = 'bg-red-600 animate-pulse'; shadowColor = 'rgba(220,38,38,0.8)'; }
+
+                    container.innerHTML += `
+                        <div class="flex flex-col gap-4">
+                            <div class="flex justify-between items-end px-2">
+                                <span class="text-5xl font-bold text-gray-100">${keg.name}</span>
+                                <span class="text-4xl font-black text-gray-300">${keg.current} Pours Left</span>
+                            </div>
+                            <div class="w-full h-16 bg-gray-900 rounded-full overflow-hidden border-[4px] border-gray-700 shadow-inner relative flex items-center justify-center">
+                                <div class="absolute left-0 top-0 bottom-0 ${barColor} transition-all duration-1000 ease-in-out shadow-[0_0_20px_${shadowColor}]" style="width: ${keg.percent}%"></div>
+                                <span class="relative z-10 text-3xl font-black text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">${keg.percent}%</span>
+                            </div>
+                        </div>
+                    `;
+                });
+            }).catch(() => {});
+        }
+
+        initDashSnow();
+        applyView(0);
+        startRotation();
+        pollEventsAndTheme();
+        fetchPasscode();
         loadDashboardData();
+        loadKegData();
+
+        setInterval(pollEventsAndTheme, 1000);
         setInterval(loadDashboardData, 3000);
+        setInterval(fetchPasscode, 5000);
         setInterval(updateCycleUI, 8000);
+        setInterval(loadKegData, 10000);
     </script>
 </body>
 </html>

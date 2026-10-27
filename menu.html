@@ -7,42 +7,133 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         :root {
-            --bg-body: #111827; 
+            --bg-body: #111827;
             --bg-panel: #1f2937;
             --border-panel: #374151;
             --border-width: 1px;
-            --text-primary: #60a5fa; 
-            --text-secondary: #d1d5db; 
-            --text-tertiary: #c084fc; 
+            --text-primary: #60a5fa;
+            --text-secondary: #d1d5db;
+            --text-tertiary: #c084fc;
         }
         .theme-bills {
-            --bg-body: #002244; 
-            --bg-panel: rgba(0, 51, 141, 0.6); 
+            --bg-body: #002244;
+            --bg-panel: rgba(0, 51, 141, 0.6);
             --border-panel: #c60c30;
             --border-width: 2px;
-            --text-primary: #ffffff; 
-            --text-secondary: #ff4d4d; 
-            --text-tertiary: #ff4d4d; 
+            --text-primary: #ffffff;
+            --text-secondary: #ff4d4d;
+            --text-tertiary: #ff4d4d;
         }
         .theme-sabres {
             --bg-body: #001f3f;
             --bg-panel: rgba(0, 38, 84, 0.8);
             --border-panel: #fcb514;
             --border-width: 2px;
-            --text-primary: #ffffff; 
-            --text-secondary: #fcb514; 
-            --text-tertiary: #fcb514; 
+            --text-primary: #ffffff;
+            --text-secondary: #fcb514;
+            --text-tertiary: #fcb514;
+        }
+        .theme-bluejays {
+            --bg-body: #071324;
+            --bg-panel: rgba(9, 27, 51, 0.88);
+            --border-panel: #e8291c;
+            --border-width: 2px;
+            --text-primary: #ffffff;
+            --text-secondary: #60a5fa;
+            --text-tertiary: #60a5fa;
+        }
+        .theme-christmas {
+            --bg-body: #072215;
+            --bg-panel: rgba(15, 56, 34, 0.88);
+            --border-panel: #dc2626;
+            --border-width: 2px;
+            --text-primary: #fef08a;
+            --text-secondary: #86efac;
+            --text-tertiary: #f87171;
         }
         body.theme-active { background-color: var(--bg-body) !important; background-image: none !important; }
-        .themed-panel { background-color: var(--bg-panel); border-color: var(--border-panel); border-width: var(--border-width); transition: all 1s ease-in-out; }
+        .themed-panel { background-color: var(--bg-panel) !important; border-color: var(--border-panel) !important; border-width: var(--border-width) !important; transition: all 1s ease-in-out; }
         .themed-text-1 { color: var(--text-primary) !important; text-shadow: 0 2px 4px rgba(0,0,0,0.5); transition: color 1s; }
         .themed-text-2 { color: var(--text-secondary) !important; transition: color 1s; }
         .themed-text-3 { color: var(--text-tertiary) !important; transition: color 1s; }
+
+        #phone-snow-container {
+            display: none;
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            overflow: hidden;
+            z-index: 90;
+        }
+        body.theme-christmas #phone-snow-container {
+            display: block;
+        }
+        .phone-snowflake {
+            position: absolute;
+            top: -5%;
+            color: #ffffff;
+            user-select: none;
+            pointer-events: none;
+            will-change: transform;
+            animation-name: phoneSnowfall, phoneSnowsway;
+            animation-timing-function: linear, ease-in-out;
+            animation-iteration-count: infinite, infinite;
+        }
+        @keyframes phoneSnowfall {
+            0% { top: -5%; }
+            100% { top: 105%; }
+        }
+        @keyframes phoneSnowsway {
+            0%, 100% { transform: translateX(0px) rotate(0deg); }
+            50% { transform: translateX(20px) rotate(180deg); }
+        }
+
+        #phone-snow-container {
+            display: none;
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            overflow: hidden;
+            z-index: 999;
+        }
+        body.theme-christmas #phone-snow-container {
+            display: block !important;
+        }
+        .phone-snowflake {
+            position: absolute;
+            top: -5%;
+            color: #ffffff;
+            user-select: none;
+            pointer-events: none;
+            will-change: transform;
+            animation-name: phoneSnowfall, phoneSnowsway;
+            animation-timing-function: linear, ease-in-out;
+            animation-iteration-count: infinite, infinite;
+        }
+        @keyframes phoneSnowfall {
+            0% { top: -5%; }
+            100% { top: 105%; }
+        }
+        @keyframes phoneSnowsway {
+            0%, 100% { transform: translateX(0px) rotate(0deg); }
+            50% { transform: translateX(20px) rotate(180deg); }
+        }
+
+        @keyframes phoneSnowfall {
+            0% { top: -5%; }
+            100% { top: 105%; }
+        }
+        @keyframes phoneSnowsway {
+            0% { transform: translateX(-15px); }
+            100% { transform: translateX(15px); }
+        }
     </style>
 </head>
 <body class="text-white p-4 font-sans antialiased bg-gray-900 transition-colors duration-1000 min-h-screen relative">
     
-    <!-- --- NEW: Passcode Overlay --- -->
+    
+
+    <!-- Passcode Overlay -->
     <div id="passcode-overlay" class="fixed inset-0 bg-gray-900 z-[100] flex flex-col items-center justify-center hidden">
         <h1 class="text-4xl font-black text-blue-400 mb-6 uppercase tracking-widest text-center px-4">Basement Bar VIP</h1>
         <div class="bg-gray-800 p-8 rounded-3xl border border-gray-700 shadow-2xl w-[90%] max-w-sm text-center">
@@ -57,14 +148,16 @@
 
     <div class="max-w-md mx-auto mt-6 pb-12">
         <h1 id="greeting" class="text-3xl font-bold text-center mb-6 text-blue-400 themed-text-1"></h1>
-        
+
         <div class="flex flex-col gap-4 mb-5 px-2">
             <input type="text" id="search-input" oninput="renderMenu()" placeholder="Search drinks, categories, or flavors..." class="w-full bg-gray-800 text-white text-base rounded-xl px-4 py-3 border border-gray-600 focus:outline-none focus:border-blue-500 shadow-md placeholder-gray-400">
             <div class="flex justify-between items-center">
-                <h2 class="text-xl font-bold text-gray-300 themed-text-2">Drink Menu</h2>
+                <div class="flex items-center gap-2">
+                    <h2 class="text-xl font-bold text-gray-300 themed-text-2">Drink Menu</h2>
+                    <button onclick="toggleAllSections()" id="expand-all-btn" class="text-xs bg-gray-800 hover:bg-gray-700 text-gray-300 px-2.5 py-1 rounded-lg border border-gray-600 transition">Expand All</button>
+                </div>
                 <select id="sort-selector" onchange="renderMenu()" class="bg-gray-800 text-gray-300 text-sm font-bold rounded-lg px-3 py-2 border border-gray-600 focus:outline-none focus:border-blue-500 shadow-sm cursor-pointer">
                     <option value="default">Default Order</option>
-                    <option value="category">By Category</option>
                     <option value="name_asc">Name (A-Z)</option>
                     <option value="abv_desc">Highest ABV</option>
                     <option value="abv_asc">Lowest ABV</option>
@@ -86,6 +179,14 @@
     </div>
 
     <script>
+        // All state variables declared first to prevent Temporal Dead Zone ReferenceErrors
+        let drinkCount = 0;
+        let menuData = [];
+        let specialsTitle = "🎄 Ugly Sweater Party Specials";
+        let currentTeam = 'none';
+        let openSections = { 'Specials': true, 'Draft': true };
+        let allExpanded = false;
+
         let deviceId = localStorage.getItem('bar_device_id');
         if (!deviceId) {
             deviceId = 'guest-' + Math.random().toString(36).substr(2, 9);
@@ -98,9 +199,10 @@
             if (!guestName || guestName.trim() === "") guestName = "Thirsty Guest";
             localStorage.setItem('bar_guest_name', guestName);
         }
-        
+
         function updateGreeting() {
-            document.getElementById('greeting').innerHTML = `🏈🏒 What are you having, <span class="border-b-2 border-dashed border-gray-400 cursor-pointer hover:text-white transition" onclick="editMyName()" title="Tap to change your name">${guestName}</span>?`;
+            let icons = (currentTeam === 'christmas') ? '🎄🎅' : (currentTeam === 'bluejays') ? '⚾🧢' : '🏈🏒';
+            document.getElementById('greeting').innerHTML = `${icons} What are you having, <span class="border-b-2 border-dashed border-gray-400 cursor-pointer hover:text-white transition" onclick="editMyName()" title="Tap to change your name">${guestName}</span>?`;
         }
         updateGreeting();
 
@@ -118,18 +220,31 @@
             }
         }
 
-        let drinkCount = 0;
-        let menuData = [];
-        let currentTeam = 'none';
+        function toggleSection(secKey) {
+            openSections[secKey] = !openSections[secKey];
+            const content = document.getElementById('sec-content-' + secKey);
+            const icon = document.getElementById('sec-chevron-' + secKey);
+            if (content && icon) {
+                content.classList.toggle('hidden', !openSections[secKey]);
+                icon.classList.toggle('rotate-180', !!openSections[secKey]);
+            }
+        }
 
-        // --- NEW: Security Gatekeeper Logic ---
+        function toggleAllSections() {
+            allExpanded = !allExpanded;
+            const keys = ['Specials', 'Draft', 'Beer', 'Seltzer', 'Cider', 'Cocktail', 'Wine', 'Liquor', 'Other'];
+            keys.forEach(k => openSections[k] = allExpanded);
+            document.getElementById('expand-all-btn').innerText = allExpanded ? 'Collapse All' : 'Expand All';
+            renderMenu();
+        }
+
         function checkCodeAccess() {
             let savedCode = localStorage.getItem('bar_access_code') || '';
             fetch('/api/verify_code', {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify({code: savedCode})
-            }).then(r=>r.json()).then(data => {
+            }).then(r => r.json()).then(data => {
                 if (!data.valid) {
                     document.getElementById('passcode-overlay').classList.remove('hidden');
                 } else {
@@ -137,6 +252,9 @@
                     loadMenu();
                     loadMyHistory();
                 }
+            }).catch(() => {
+                loadMenu();
+                loadMyHistory();
             });
         }
 
@@ -146,7 +264,7 @@
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify({code: code})
-            }).then(r=>r.json()).then(data => {
+            }).then(r => r.json()).then(data => {
                 if (data.valid) {
                     localStorage.setItem('bar_access_code', code);
                     document.getElementById('code-error').classList.add('hidden');
@@ -160,154 +278,334 @@
         }
 
         function fetchCurrentEvent() {
-            fetch('/api/event/current').then(r => r.json()).then(data => {
-                if (data.team && data.team !== currentTeam) {
-                    currentTeam = data.team;
-                    applyTheme(currentTeam);
+            fetch('/api/settings/theme').then(r => r.json()).then(tData => {
+                if (tData.theme && tData.theme !== 'auto') {
+                    if (tData.theme !== currentTeam) {
+                        currentTeam = tData.theme;
+                        applyTheme(currentTeam);
+                    }
+                    return;
                 }
-            }).catch(e => {});
+                fetch('/api/event/current').then(r => r.json()).then(data => {
+                    if (data.team && data.team !== currentTeam) {
+                        currentTeam = data.team;
+                        applyTheme(currentTeam);
+                    }
+                }).catch(() => {});
+            }).catch(() => {
+                fetch('/api/event/current').then(r => r.json()).then(data => {
+                    if (data.team && data.team !== currentTeam) {
+                        currentTeam = data.team;
+                        applyTheme(currentTeam);
+                    }
+                }).catch(() => {});
+            });
         }
         setInterval(fetchCurrentEvent, 5000);
-        fetchCurrentEvent(); 
+        fetchCurrentEvent();
 
         function applyTheme(team) {
+            document.body.classList.remove('theme-active', 'theme-bills', 'theme-sabres', 'theme-christmas', 'theme-bluejays');
             if (team === 'bills') {
                 document.body.classList.add('theme-active', 'theme-bills');
-                document.body.classList.remove('theme-sabres');
             } else if (team === 'sabres') {
                 document.body.classList.add('theme-active', 'theme-sabres');
-                document.body.classList.remove('theme-bills');
+            } else if (team === 'christmas') {
+                document.body.classList.add('theme-active', 'theme-christmas');
+            } else if (team === 'bluejays') {
+                document.body.classList.add('theme-active', 'theme-bluejays');
             } else {
-                document.body.classList.remove('theme-active', 'theme-bills', 'theme-sabres');
-                updateBackgroundGradient(drinkCount); 
+                updateBackgroundGradient(drinkCount);
+            }
+            updateGreeting();
+
+            // JS-driven snow toggle & generator
+            let snowContainer = document.getElementById('phone-snow-container');
+            if (team === 'christmas') {
+                if (!snowContainer) {
+                    snowContainer = document.createElement('div');
+                    snowContainer.id = 'phone-snow-container';
+                    snowContainer.style.cssText = 'position:fixed;inset:0;pointer-events:none;overflow:hidden;z-index:999;';
+                    document.body.appendChild(snowContainer);
+                }
+                snowContainer.style.display = 'block';
+                if (snowContainer.children.length === 0) {
+                    const symbols = ['❄', '❅', '❆', '•'];
+                    for (let i = 0; i < 28; i++) {
+                        const span = document.createElement('span');
+                        span.className = 'phone-snowflake';
+                        span.innerText = symbols[i % symbols.length];
+                        span.style.position = 'absolute';
+                        span.style.top = '-5%';
+                        span.style.color = '#ffffff';
+                        span.style.userSelect = 'none';
+                        span.style.pointerEvents = 'none';
+                        span.style.left = (Math.random() * 100) + '%';
+                        span.style.fontSize = (Math.random() * 10 + 7).toFixed(1) + 'px';
+                        span.style.opacity = (Math.random() * 0.5 + 0.2).toFixed(2);
+                        span.style.animation = `phoneSnowfall ${Math.random() * 7 + 6}s linear infinite, phoneSnowsway ${Math.random() * 3 + 2}s ease-in-out infinite alternate`;
+                        span.style.animationDelay = `${Math.random() * -12}s`;
+                        snowContainer.appendChild(span);
+                    }
+                }
+            } else {
+                if (snowContainer) snowContainer.style.display = 'none';
             }
         }
 
-        function loadMenu() {
-            fetch('/menu').then(res => res.json()).then(data => {
-                menuData = data.menu;
-                renderMenu();
+        function loadMenu(silent = false) {
+            const menuEl = document.getElementById('menu-list');
+            if (silent && menuEl && menuEl.contains(document.activeElement)) {
+                return;
+            }
+
+            let newTitle = specialsTitle;
+            fetch('/api/settings/specials_title').then(r => r.json()).then(d => {
+                if (d.title) newTitle = d.title;
+            }).catch(() => {}).finally(() => {
+                fetch('/menu').then(res => res.json()).then(data => {
+                    let incomingMenu = data.menu || [];
+                    if (silent && JSON.stringify(incomingMenu) === JSON.stringify(menuData) && newTitle === specialsTitle) {
+                        return;
+                    }
+
+                    let savedInputs = {};
+                    let openContainers = [];
+                    if (menuEl) {
+                        menuEl.querySelectorAll('input[type="text"]').forEach(inp => {
+                            if (inp.id && inp.value) savedInputs[inp.id] = inp.value;
+                        });
+                        menuEl.querySelectorAll('[id^="note-container-"], #custom-form').forEach(div => {
+                            if (!div.classList.contains('hidden')) openContainers.push(div.id);
+                        });
+                    }
+
+                    specialsTitle = newTitle;
+                    menuData = incomingMenu;
+                    renderMenu();
+
+                    openContainers.forEach(id => {
+                        let el = document.getElementById(id);
+                        if (el) el.classList.remove('hidden');
+                    });
+                    Object.keys(savedInputs).forEach(id => {
+                        let el = document.getElementById(id);
+                        if (el) el.value = savedInputs[id];
+                    });
+                });
             });
+        }
+
+        function generateDrinkHtml(drink, isSpecialSection = false) {
+            let bgClass = 'bg-gray-800';
+            let borderClass = 'border-gray-700';
+            let textClass = 'text-blue-400';
+            let badgeClass = 'bg-gray-700 text-gray-300';
+
+            if (isSpecialSection) {
+                bgClass = 'bg-gradient-to-r from-yellow-950/60 via-red-950/50 to-emerald-950/60';
+                borderClass = 'border-yellow-500/80';
+                textClass = 'text-yellow-300';
+                badgeClass = 'bg-yellow-800 text-yellow-100';
+            } else if (drink.container === 'Draft') {
+                bgClass = 'bg-emerald-900/40'; borderClass = 'border-emerald-700'; textClass = 'text-emerald-400'; badgeClass = 'bg-emerald-800 text-emerald-200';
+            } else if (drink.category === 'Beer') {
+                bgClass = 'bg-yellow-900/40'; borderClass = 'border-yellow-700'; textClass = 'text-yellow-400'; badgeClass = 'bg-yellow-800 text-yellow-200';
+            } else if (drink.category === 'Cider') {
+                bgClass = 'bg-amber-900/40'; borderClass = 'border-amber-700'; textClass = 'text-amber-400'; badgeClass = 'bg-amber-800 text-amber-200';
+            } else if (drink.category === 'Seltzer') {
+                bgClass = 'bg-cyan-900/40'; borderClass = 'border-cyan-700'; textClass = 'text-cyan-400'; badgeClass = 'bg-cyan-800 text-cyan-200';
+            } else if (drink.category === 'Wine') {
+                bgClass = 'bg-rose-900/40'; borderClass = 'border-rose-700'; textClass = 'text-rose-400'; badgeClass = 'bg-rose-800 text-rose-200';
+            } else if (drink.category === 'Cocktail') {
+                bgClass = 'bg-indigo-900/40'; borderClass = 'border-indigo-700'; textClass = 'text-indigo-400'; badgeClass = 'bg-indigo-800 text-indigo-200';
+            } else if (drink.category === 'Shot' || drink.category === 'Liquor') {
+                bgClass = 'bg-red-900/40'; borderClass = 'border-red-700'; textClass = 'text-red-400'; badgeClass = 'bg-red-800 text-red-200';
+            }
+
+            let isPctTracked = (drink.container === 'Liquor' || drink.category === 'Wine' || drink.category === 'Liquor' || drink.category === 'Shot');
+            let hasPours = (drink.current_pours !== null && drink.current_pours !== undefined);
+            let isSoldOut = hasPours && drink.current_pours === 0;
+
+            let containerBadge = '';
+            if (drink.container || isPctTracked || hasPours) {
+                let label = drink.container ? drink.container : (drink.category === 'Wine' ? 'Bottle' : (isPctTracked ? 'Liquor' : 'Stock'));
+                let icon = drink.category === 'Wine' ? '🍷 ' : label === 'Draft' ? '🍺 ' : label === 'Can' ? '🥫 ' : label === 'Bottle' ? '🍾 ' : label === 'Liquor' ? '🥃 ' : '📦 ';
+                let countText = '';
+
+                if (label === 'Draft' && hasPours) {
+                    if (isSoldOut) {
+                        countText = ' - KICKED';
+                    } else if (drink.max_pours > 0) {
+                        let pct = Math.round((drink.current_pours / drink.max_pours) * 100);
+                        countText = ` - ${drink.current_pours} Left (${pct}%)`;
+                    } else {
+                        countText = ` - ${drink.current_pours} Left`;
+                    }
+                } else if (isPctTracked && hasPours && drink.max_pours > 0) {
+                    let pct = Math.round((drink.current_pours / drink.max_pours) * 100);
+                    countText = isSoldOut ? ' - EMPTY' : ` - ${pct}% Full`;
+                } else if (hasPours) {
+                    countText = isSoldOut ? ' - SOLD OUT' : ` - ${drink.current_pours} Left`;
+                }
+                containerBadge = `<span class="inline-block mt-1 ml-2 text-[10px] uppercase tracking-wider px-2 py-0.5 rounded-full bg-slate-800 text-slate-300 border border-slate-600">${icon}${label}${countText}</span>`;
+            }
+
+            if (isSoldOut) {
+                bgClass = 'bg-gray-900/40 grayscale opacity-50';
+                textClass = 'text-gray-500 line-through';
+                badgeClass = 'bg-gray-800 text-gray-500';
+            }
+
+            let details = [];
+            if (drink.abv) details.push(`💧 ${drink.abv}`);
+            if (drink.calories) details.push(`🔥 ${drink.calories} cal`);
+            let detailsHtml = details.length > 0 ? `<div class="text-xs text-gray-300 mt-2 space-x-3 font-semibold"><span>${details.join('</span><span>')}</span></div>` : '';
+            let notesHtml = drink.notes ? `<p class="text-xs text-gray-300 mt-1 italic leading-tight">${drink.notes}</p>` : '';
+
+            let safeItemName = drink.item_name.replace(/'/g, "\\'").replace(/"/g, '&quot;');
+            let noteSuffix = isSpecialSection ? `spec-${drink.id}` : `${drink.id}`;
+            let orderBtnHtml = isSoldOut
+                ? `<button disabled class="bg-gray-700 text-gray-500 px-4 py-2 rounded-lg font-semibold cursor-not-allowed shrink-0 self-center border border-gray-600">Sold Out</button>`
+                : `<button onclick="placeOrder(${drink.id}, '${safeItemName}', '${noteSuffix}')" class="bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-lg font-semibold transition active:scale-95 shrink-0 self-center shadow">Order</button>`;
+
+            return `
+                <div class="${bgClass} p-4 rounded-xl shadow-lg flex justify-between items-center border ${borderClass}">
+                    <div class="flex-1 pr-4">
+                        <h2 class="text-lg font-bold ${textClass}">${isSpecialSection ? '⭐ ' : ''}${drink.item_name}</h2>
+                        <span class="inline-block mt-1 text-[10px] uppercase tracking-wider px-2 py-0.5 rounded-full ${badgeClass}">${drink.category}</span>
+                        ${containerBadge}
+                        ${detailsHtml}
+                        ${notesHtml}
+                        <div class="mt-2">
+                            <button onclick="document.getElementById('note-container-${noteSuffix}').classList.toggle('hidden')" class="text-[11px] text-gray-400 hover:text-white underline outline-none">Add note for bartender...</button>
+                            <div id="note-container-${noteSuffix}" class="hidden mt-1">
+                                <input type="text" id="note-input-${noteSuffix}" placeholder="e.g. Extra lime, light ice..." class="bg-gray-800/80 text-white text-xs rounded px-2 py-1.5 w-full border border-gray-600 focus:outline-none focus:border-blue-500">
+                            </div>
+                        </div>
+                    </div>
+                    ${orderBtnHtml}
+                </div>
+            `;
         }
 
         function renderMenu() {
             const sortType = document.getElementById('sort-selector').value;
             const searchTerm = document.getElementById('search-input').value.toLowerCase();
-            
+
             let filteredData = menuData.filter(drink => {
-                return drink.item_name.toLowerCase().includes(searchTerm) || 
+                return drink.item_name.toLowerCase().includes(searchTerm) ||
                        drink.category.toLowerCase().includes(searchTerm) ||
+                       (drink.container && drink.container.toLowerCase().includes(searchTerm)) ||
                        (drink.notes && drink.notes.toLowerCase().includes(searchTerm));
             });
 
             function extractNum(val) {
                 if (!val) return null;
-                let match = val.match(/[\d\.]+/);
+                let match = String(val).match(/[\d\.]+/);
                 return match ? parseFloat(match[0]) : null;
             }
 
             let sortedData = [...filteredData];
             sortedData.sort((a, b) => {
                 if (sortType === 'name_asc') return a.item_name.localeCompare(b.item_name);
-                if (sortType === 'category') return a.category.localeCompare(b.category) || a.item_name.localeCompare(b.item_name);
-                
                 if (sortType === 'abv_desc') {
-                    let valA = extractNum(a.abv);
-                    let valB = extractNum(b.abv);
+                    let valA = extractNum(a.abv), valB = extractNum(b.abv);
                     if (valA === null && valB === null) return 0;
-                    if (valA === null) return 1; 
+                    if (valA === null) return 1;
                     if (valB === null) return -1;
-                    return valB - valA; 
+                    return valB - valA;
                 }
-                
                 if (sortType === 'abv_asc') {
-                    let valA = extractNum(a.abv);
-                    let valB = extractNum(b.abv);
+                    let valA = extractNum(a.abv), valB = extractNum(b.abv);
                     if (valA === null && valB === null) return 0;
-                    if (valA === null) return 1; 
+                    if (valA === null) return 1;
                     if (valB === null) return -1;
-                    return valA - valB; 
+                    return valA - valB;
                 }
-                
                 if (sortType === 'cal_asc') {
-                    let valA = extractNum(a.calories);
-                    let valB = extractNum(b.calories);
+                    let valA = extractNum(a.calories), valB = extractNum(b.calories);
                     if (valA === null && valB === null) return 0;
-                    if (valA === null) return 1; 
+                    if (valA === null) return 1;
                     if (valB === null) return -1;
-                    return valA - valB; 
+                    return valA - valB;
                 }
-                
                 if (sortType === 'cal_desc') {
-                    let valA = extractNum(a.calories);
-                    let valB = extractNum(b.calories);
+                    let valA = extractNum(a.calories), valB = extractNum(b.calories);
                     if (valA === null && valB === null) return 0;
-                    if (valA === null) return 1; 
+                    if (valA === null) return 1;
                     if (valB === null) return -1;
-                    return valB - valA; 
+                    return valB - valA;
                 }
-                
-                return a.id - b.id; 
+                return a.id - b.id;
             });
 
             const menuList = document.getElementById('menu-list');
             menuList.innerHTML = '';
-            
+
             if (sortedData.length === 0) {
                 menuList.innerHTML = '<p class="text-gray-500 italic text-center py-4">No drinks match your search.</p>';
-            }
-            
-            sortedData.forEach(drink => {
-                let bgClass = 'bg-gray-800';
-                let borderClass = 'border-gray-700';
-                let textClass = 'text-blue-400';
-                let badgeClass = 'bg-gray-700 text-gray-300';
+            } else {
+                const sectionDefs = [
+                    { key: 'Specials', title: specialsTitle, icon: '🌟', border: 'border-yellow-500/80 shadow-[0_0_15px_rgba(234,179,8,0.2)]', bgHeader: 'bg-gradient-to-r from-yellow-900/50 via-red-900/40 to-emerald-900/50 hover:from-yellow-900/70', textHeader: 'text-yellow-300', badge: 'bg-yellow-700 text-yellow-100' },
+                    { key: 'Draft', title: 'On Tap / Drafts', icon: '🍺', border: 'border-emerald-700/60', bgHeader: 'bg-emerald-900/30 hover:bg-emerald-900/50', textHeader: 'text-emerald-400', badge: 'bg-emerald-800 text-emerald-200' },
+                    { key: 'Beer', title: 'Beer (Cans & Bottles)', icon: '🥫', border: 'border-yellow-700/60', bgHeader: 'bg-yellow-900/30 hover:bg-yellow-900/50', textHeader: 'text-yellow-400', badge: 'bg-yellow-800 text-yellow-200' },
+                    { key: 'Seltzer', title: 'Hard Seltzers', icon: '🫧', border: 'border-cyan-700/60', bgHeader: 'bg-cyan-900/30 hover:bg-cyan-900/50', textHeader: 'text-cyan-400', badge: 'bg-cyan-800 text-cyan-200' },
+                    { key: 'Cider', title: 'Ciders', icon: '🍎', border: 'border-amber-700/60', bgHeader: 'bg-amber-900/30 hover:bg-amber-900/50', textHeader: 'text-amber-400', badge: 'bg-amber-800 text-amber-200' },
+                    { key: 'Cocktail', title: 'Cocktails & Mixed', icon: '🍸', border: 'border-indigo-700/60', bgHeader: 'bg-indigo-900/30 hover:bg-indigo-900/50', textHeader: 'text-indigo-400', badge: 'bg-indigo-800 text-indigo-200' },
+                    { key: 'Wine', title: 'Wine', icon: '🍷', border: 'border-rose-700/60', bgHeader: 'bg-rose-900/30 hover:bg-rose-900/50', textHeader: 'text-rose-400', badge: 'bg-rose-800 text-rose-200' },
+                    { key: 'Liquor', title: 'Liquor & Shots', icon: '🥃', border: 'border-red-700/60', bgHeader: 'bg-red-900/30 hover:bg-red-900/50', textHeader: 'text-red-400', badge: 'bg-red-800 text-red-200' },
+                    { key: 'Other', title: 'Other Drinks', icon: '🥤', border: 'border-gray-600', bgHeader: 'bg-gray-800 hover:bg-gray-700', textHeader: 'text-blue-400', badge: 'bg-gray-700 text-gray-200' }
+                ];
 
-                if (drink.category === 'Beer') { 
-                    bgClass = 'bg-yellow-900/40'; borderClass = 'border-yellow-700'; textClass = 'text-yellow-400'; badgeClass = 'bg-yellow-800 text-yellow-200';
-                } else if (drink.category === 'Cider') { 
-                    bgClass = 'bg-amber-900/40'; borderClass = 'border-amber-700'; textClass = 'text-amber-400'; badgeClass = 'bg-amber-800 text-amber-200';
-                } else if (drink.category === 'Wine') { 
-                    bgClass = 'bg-rose-900/40'; borderClass = 'border-rose-700'; textClass = 'text-rose-400'; badgeClass = 'bg-rose-800 text-rose-200';
-                } else if (drink.category === 'Cocktail') { 
-                    bgClass = 'bg-indigo-900/40'; borderClass = 'border-indigo-700'; textClass = 'text-indigo-400'; badgeClass = 'bg-indigo-800 text-indigo-200';
-                } else if (drink.category === 'Shot') { 
-                    bgClass = 'bg-red-900/40'; borderClass = 'border-red-700'; textClass = 'text-red-400'; badgeClass = 'bg-red-800 text-red-200';
-                }
+                let groups = {};
+                sectionDefs.forEach(s => groups[s.key] = []);
 
-                let containerBadge = '';
-                if (drink.container) {
-                    let icon = drink.container === 'Draft' ? '🍺 ' : drink.container === 'Can' ? '🥫 ' : drink.container === 'Bottle' ? '🍾 ' : '';
-                    containerBadge = `<span class="inline-block mt-1 ml-2 text-[10px] uppercase tracking-wider px-2 py-0.5 rounded-full bg-slate-800 text-slate-300 border border-slate-600">${icon}${drink.container}</span>`;
-                }
+                sortedData.forEach(drink => {
+                    if (drink.is_special) {
+                        groups['Specials'].push(drink);
+                    }
+                    if (drink.container === 'Draft') {
+                        groups['Draft'].push(drink);
+                    } else if (drink.category === 'Shot' || drink.category === 'Liquor' || drink.container === 'Liquor') {
+                        groups['Liquor'].push(drink);
+                    } else if (groups[drink.category]) {
+                        groups[drink.category].push(drink);
+                    } else {
+                        groups['Other'].push(drink);
+                    }
+                });
 
-                let details = [];
-                if (drink.abv) details.push(`💧 ${drink.abv}`);
-                if (drink.calories) details.push(`🔥 ${drink.calories} cal`);
-                let detailsHtml = details.length > 0 ? `<div class="text-xs text-gray-300 mt-2 space-x-3 font-semibold"><span>${details.join('</span><span>')}</span></div>` : '';
-                let notesHtml = drink.notes ? `<p class="text-xs text-gray-400 mt-1 italic leading-tight">${drink.notes}</p>` : '';
+                let isSearching = searchTerm.trim().length > 0;
 
-                menuList.innerHTML += `
-                    <div class="${bgClass} p-4 rounded-xl shadow-lg flex justify-between items-center border ${borderClass}">
-                        <div class="flex-1 pr-4">
-                            <h2 class="text-lg font-bold ${textClass}">${drink.item_name}</h2>
-                            <span class="inline-block mt-1 text-[10px] uppercase tracking-wider px-2 py-0.5 rounded-full ${badgeClass}">${drink.category}</span>
-                            ${containerBadge}
-                            ${detailsHtml}
-                            ${notesHtml}
-                            <div class="mt-2">
-                                <button onclick="document.getElementById('note-container-${drink.id}').classList.toggle('hidden')" class="text-[11px] text-gray-400 hover:text-white underline outline-none">Add note for bartender...</button>
-                                <div id="note-container-${drink.id}" class="hidden mt-1">
-                                    <input type="text" id="note-input-${drink.id}" placeholder="e.g. Extra lime, light ice..." class="bg-gray-800/80 text-white text-xs rounded px-2 py-1.5 w-full border border-gray-600 focus:outline-none focus:border-blue-500">
+                sectionDefs.forEach(sec => {
+                    let items = groups[sec.key];
+                    if (items.length === 0) return;
+
+                    let cardsHtml = items.map(d => generateDrinkHtml(d, sec.key === 'Specials')).join('');
+                    let isOpen = isSearching || !!openSections[sec.key];
+                    let hiddenClass = isOpen ? '' : 'hidden';
+                    let rotateClass = isOpen ? 'rotate-180' : '';
+
+                    menuList.innerHTML += `
+                        <div class="bg-gray-800 rounded-xl shadow-lg border ${sec.border} overflow-hidden themed-panel">
+                            <button onclick="toggleSection('${sec.key}')" class="w-full flex justify-between items-center p-4 ${sec.bgHeader} transition">
+                                <div class="flex items-center gap-3">
+                                    <span class="text-2xl">${sec.icon}</span>
+                                    <h2 class="text-lg font-bold ${sec.textHeader}">${sec.title}</h2>
+                                    <span class="${sec.badge} text-xs px-2.5 py-0.5 rounded-full font-bold">${items.length}</span>
                                 </div>
+                                <svg id="sec-chevron-${sec.key}" class="w-6 h-6 ${sec.textHeader} transition-transform duration-300 ${rotateClass}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                                </svg>
+                            </button>
+                            <div id="sec-content-${sec.key}" class="p-4 space-y-4 bg-gray-900/50 border-t border-gray-700/40 ${hiddenClass}">
+                                ${cardsHtml}
                             </div>
                         </div>
-                        <button onclick="placeOrder(${drink.id}, '${drink.item_name.replace(/'/g, "\\'")}')" class="bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-lg font-semibold transition active:scale-95 shrink-0 self-center">
-                            Order
-                        </button>
-                    </div>
-                `;
-            });
+                    `;
+                });
+            }
 
             menuList.innerHTML += `
                 <div class="bg-gray-800 p-4 rounded-xl shadow-lg border border-gray-600 border-dashed mt-6 themed-panel">
@@ -334,12 +632,12 @@
         }
 
         function updateBackgroundGradient(count) {
-            if (currentTeam !== 'none') return; 
-            
+            if (currentTeam !== 'none') return;
+
             const body = document.body;
             body.classList.remove('bg-gray-900', 'from-gray-900', 'from-blue-900', 'from-yellow-900', 'from-orange-900', 'from-red-900');
             body.classList.add('bg-gradient-to-b', 'to-gray-900');
-            
+
             if (count <= 1) {
                 body.classList.add('from-gray-900');
             } else if (count === 2 || count === 3) {
@@ -362,7 +660,7 @@
                         localStorage.removeItem('bar_device_id');
                         localStorage.removeItem('bar_guest_name');
                         localStorage.removeItem('bar_has_ordered');
-                        location.reload(); 
+                        location.reload();
                         return;
                     }
                     document.getElementById('my-history-list').innerHTML = '<p class="text-gray-500 italic text-center text-sm">You haven\'t ordered anything yet.</p>';
@@ -373,25 +671,25 @@
 
                 const list = document.getElementById('my-history-list');
                 list.innerHTML = '';
-                
+
                 drinkCount = data.today_count || 0;
                 updateBackgroundGradient(drinkCount);
 
-                if (data.history.length === 0) {
+                if (!data.history || data.history.length === 0) {
                     list.innerHTML = '<p class="text-gray-500 italic text-center text-sm">No orders found.</p>';
                     return;
                 }
-                
+
                 data.history.forEach(order => {
                     let statusTag = '';
                     let textStyle = 'text-gray-200';
-                    
+
                     if (order.status === 'rejected') {
                         textStyle = 'text-gray-500 line-through';
                         let reason = order.reject_reason ? ` - ${order.reject_reason}` : '';
                         statusTag = `<span class="text-red-400 text-xs font-bold ml-2">(Rejected${reason})</span>`;
                     }
-                    
+
                     list.innerHTML += `
                         <div class="flex justify-between items-center border-b border-gray-700/50 py-2 last:border-0">
                             <span class="${textStyle}">${order.item_name} ${statusTag}</span>
@@ -399,7 +697,7 @@
                         </div>
                     `;
                 });
-            });
+            }).catch(() => {});
         }
 
         function verifyWaterCheck() {
@@ -413,29 +711,35 @@
             if (resData.status === "error") {
                 alert(`🚫 ${resData.message}`);
                 if (resData.message.includes("Invalid access code")) {
-                    checkCodeAccess(); 
+            
+        
+
+        
+        checkCodeAccess();
                 }
             } else {
                 localStorage.setItem('bar_has_ordered', 'true');
                 alert(`✅ Order sent! Your ${itemName} is logged.`);
+                loadMenu();
                 loadMyHistory();
-                
+
                 document.querySelectorAll('input[type="text"]:not(#guest-code-input)').forEach(input => input.value = '');
                 document.querySelectorAll('input[type="number"]').forEach(input => input.value = '');
                 document.querySelectorAll('[id^="note-container-"]').forEach(div => div.classList.add('hidden'));
-                
+
                 let customForm = document.getElementById('custom-form');
                 if (customForm) customForm.classList.add('hidden');
-                
+
                 document.getElementById('search-input').value = '';
                 renderMenu();
             }
         }
 
-        function placeOrder(menuId, itemName) {
+        function placeOrder(menuId, itemName, noteSuffix = null) {
             if (!verifyWaterCheck()) return;
-            
-            let noteInput = document.getElementById('note-input-' + menuId);
+
+            let lookupId = noteSuffix || menuId;
+            let noteInput = document.getElementById('note-input-' + lookupId);
             let orderNote = noteInput && noteInput.value.trim() !== "" ? noteInput.value.trim() : null;
             let activeCode = localStorage.getItem('bar_access_code') || '';
 
@@ -454,7 +758,7 @@
                 alert("Please enter a drink name!");
                 return;
             }
-            
+
             const abvInput = document.getElementById('custom-abv').value.trim() || null;
             const calInput = document.getElementById('custom-cal').value.trim() || null;
             const noteInput = document.getElementById('custom-note').value.trim() || null;
@@ -463,11 +767,11 @@
             fetch('/order', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ 
-                    guest_name: guestName, 
-                    menu_id: null, 
-                    device_id: deviceId, 
-                    custom_item: nameInput, 
+                body: JSON.stringify({
+                    guest_name: guestName,
+                    menu_id: null,
+                    device_id: deviceId,
+                    custom_item: nameInput,
                     order_note: noteInput,
                     custom_abv: abvInput,
                     custom_calories: calInput,
@@ -476,13 +780,17 @@
             }).then(res => res.json()).then(data => processResponse(data, nameInput));
         }
 
-        // Kick off by checking access instead of loading the menu directly
         checkCodeAccess();
         setInterval(() => {
             if (document.getElementById('passcode-overlay').classList.contains('hidden')) {
                 loadMyHistory();
             }
-        }, 5000);
+        }, 3000);
+        setInterval(() => {
+            if (document.getElementById('passcode-overlay').classList.contains('hidden')) {
+                loadMenu(true);
+            }
+        }, 10000);
     </script>
 </body>
 </html>

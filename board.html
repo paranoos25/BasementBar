@@ -1,0 +1,794 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Basement Bar - Live Menu Board</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        :root {
+            --bg-body: #0b0f19;
+            --bg-panel: #111827;
+            --bg-card: #1f2937;
+            --border-panel: #374151;
+            --border-width: 1px;
+            --text-primary: #60a5fa;
+            --text-secondary: #f3f4f6;
+            --text-accent: #34d399;
+        }
+        .theme-bills {
+            --bg-body: #00152b;
+            --bg-panel: rgba(0, 34, 68, 0.9);
+            --bg-card: rgba(0, 51, 141, 0.55);
+            --border-panel: #c60c30;
+            --border-width: 2px;
+            --text-primary: #ffffff;
+            --text-secondary: #ff4d4d;
+            --text-accent: #60a5fa;
+        }
+        .theme-sabres {
+            --bg-body: #001226;
+            --bg-panel: rgba(0, 26, 53, 0.9);
+            --bg-card: rgba(0, 38, 84, 0.75);
+            --border-panel: #fcb514;
+            --border-width: 2px;
+            --text-primary: #ffffff;
+            --text-secondary: #fcb514;
+            --text-accent: #fcb514;
+        }
+        .theme-bluejays {
+            --bg-body: #071324;
+            --bg-panel: rgba(9, 27, 51, 0.9);
+            --bg-card: rgba(19, 74, 142, 0.55);
+            --border-panel: #e8291c;
+            --border-width: 2px;
+            --text-primary: #ffffff;
+            --text-secondary: #60a5fa;
+            --text-accent: #e8291c;
+        }
+        .theme-christmas {
+            --bg-body: #05190f;
+            --bg-panel: rgba(12, 46, 28, 0.92);
+            --bg-card: rgba(20, 68, 41, 0.75);
+            --border-panel: #dc2626;
+            --border-width: 2px;
+            --text-primary: #fef08a;
+            --text-secondary: #86efac;
+            --text-accent: #f87171;
+        }
+
+        body {
+            background-color: var(--bg-body) !important;
+            transition: background-color 1s ease-in-out;
+            user-select: none;
+            overflow: hidden;
+        }
+        .themed-panel { background-color: var(--bg-panel) !important; border-color: var(--border-panel) !important; border-width: var(--border-width) !important; transition: all 1s ease-in-out; }
+        .themed-card {
+            background-color: var(--bg-card);
+            border-color: var(--border-panel);
+            transition: all 0.5s ease-in-out;
+        }
+        .themed-text-1 { color: var(--text-primary) !important; }
+        .themed-text-2 { color: var(--text-secondary) !important; }
+
+        .page-fade {
+            animation: fadeIn 0.45s ease-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        #board-wrapper.rot-90 {
+            width: 100vh;
+            height: 100vw;
+            transform: rotate(90deg) translateY(-100%);
+            transform-origin: top left;
+        }
+        #board-wrapper.rot-270 {
+            width: 100vh;
+            height: 100vw;
+            transform: rotate(270deg) translateX(-100%);
+            transform-origin: top left;
+        }
+        #board-wrapper.rot-0 {
+            width: 100vw;
+            height: 100vh;
+        }
+
+        #qr-container img {
+            margin: 0 auto;
+            display: block;
+        }
+
+        #snow-container {
+            display: none;
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            overflow: hidden;
+            z-index: 40;
+        }
+        body.theme-christmas #snow-container {
+            display: block;
+        }
+        .snowflake {
+            position: absolute;
+            top: -5%;
+            color: #ffffff;
+            user-select: none;
+            pointer-events: none;
+            will-change: transform;
+            animation-name: snowfall, snowsway;
+            animation-timing-function: linear, ease-in-out;
+            animation-iteration-count: infinite, infinite;
+        }
+        @keyframes snowfall {
+            0% { top: -5%; }
+            100% { top: 105%; }
+        }
+        @keyframes snowsway {
+            0%, 100% { transform: translateX(0px) rotate(0deg); }
+            50% { transform: translateX(28px) rotate(180deg); }
+        }
+    </style>
+</head>
+<body class="text-white font-sans antialiased m-0 p-0">
+
+    <div id="board-wrapper" class="rot-0 flex flex-col justify-between p-5 box-border relative">
+        <div id="snow-container"></div>
+
+        <!-- Top Timer Progress Bar -->
+        <div class="w-full h-1.5 bg-gray-800 rounded-full overflow-hidden mb-3 shrink-0">
+            <div id="cycle-progress" class="h-full bg-blue-500 transition-all duration-100 ease-linear" style="width: 0%"></div>
+        </div>
+
+        <!-- Header Bar (Click to toggle display settings) -->
+        <div onclick="toggleSettings()" class="themed-panel rounded-2xl px-6 py-4 mb-3 flex justify-between items-center shadow-xl shrink-0 cursor-pointer">
+            <div class="flex items-center gap-4">
+                <span id="board-header-icon" class="text-4xl">🍻</span>
+                <div>
+                    <h1 class="text-3xl font-black tracking-wider uppercase themed-text-1 leading-none">Basement Bar</h1>
+                    <p id="sub-header" class="text-sm font-bold text-gray-400 uppercase tracking-widest mt-1">Live Drink Menu & Inventory</p>
+                </div>
+            </div>
+            <div class="text-right">
+                <div id="page-indicator" class="text-2xl font-black themed-text-2 tracking-wide">PAGE 1 / 1</div>
+                <div id="item-summary" class="text-xs font-bold text-gray-400 uppercase tracking-widest mt-0.5">Loading Menu...</div>
+            </div>
+        </div>
+
+        <!-- Hidden Display Controls Drawer (Tap Header to Open) -->
+        <div id="settings-drawer" class="hidden themed-panel rounded-xl p-4 mb-3 shrink-0 border border-blue-500/50 shadow-2xl space-y-3">
+            <div class="flex flex-wrap items-center justify-between gap-4 text-sm">
+                <div class="flex items-center gap-2">
+                    <span class="text-gray-400 font-bold uppercase text-xs">Items / Page:</span>
+                    <select id="cfg-per-page" onchange="saveBoardConfig()" class="bg-gray-900 text-white px-2.5 py-1.5 rounded-lg border border-gray-700 font-bold">
+                        <option value="8">8 (Extra Large)</option>
+                        <option value="10">10 (Large)</option>
+                        <option value="11" selected>11 (Standard Vertical)</option>
+                        <option value="13">13 (Compact)</option>
+                        <option value="15">15 (Dense)</option>
+                    </select>
+                </div>
+                <div class="flex items-center gap-2">
+                    <span class="text-gray-400 font-bold uppercase text-xs">Flip Speed:</span>
+                    <select id="cfg-speed" onchange="saveBoardConfig()" class="bg-gray-900 text-white px-2.5 py-1.5 rounded-lg border border-gray-700 font-bold">
+                        <option value="6">6 sec</option>
+                        <option value="8">8 sec</option>
+                        <option value="10" selected>10 sec</option>
+                        <option value="15">15 sec</option>
+                        <option value="20">20 sec</option>
+                    </select>
+                </div>
+                <div class="flex items-center gap-2">
+                    <span class="text-gray-400 font-bold uppercase text-xs">Specials Display:</span>
+                    <select id="cfg-specials-mode" onchange="saveBoardConfig()" class="bg-gray-900 text-white px-2.5 py-1.5 rounded-lg border border-gray-700 font-bold">
+                        <option value="pinned">Pin to Top of Screen</option>
+                        <option value="page">Cycle as First Category</option>
+                    </select>
+                </div>
+                <div class="flex items-center gap-2">
+                    <span class="text-gray-400 font-bold uppercase text-xs">Stock Filter:</span>
+                    <select id="cfg-hide-empty" onchange="saveBoardConfig()" class="bg-gray-900 text-white px-2.5 py-1.5 rounded-lg border border-gray-700 font-bold">
+                        <option value="false">Show All (Mark Sold Out)</option>
+                        <option value="true">Hide Sold Out / Empty</option>
+                    </select>
+                </div>
+                <div class="flex items-center gap-2">
+                    <span class="text-gray-400 font-bold uppercase text-xs">Orientation:</span>
+                    <select id="cfg-rotate" onchange="saveBoardConfig()" class="bg-gray-900 text-white px-2.5 py-1.5 rounded-lg border border-gray-700 font-bold">
+                        <option value="rot-0">0° (Native Portrait)</option>
+                        <option value="rot-90">90° Clockwise</option>
+                        <option value="rot-270">270° Counter-CW</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Row 2: QR Code & Page Navigation Controls -->
+            <div class="flex flex-wrap items-center justify-between gap-4 text-sm pt-2 border-t border-gray-700/70">
+                <div class="flex items-center gap-2 flex-1 min-w-[220px]">
+                    <span class="text-gray-400 font-bold uppercase text-xs whitespace-nowrap">URL Label:</span>
+                    <input type="text" id="cfg-qr-url" onchange="saveBoardConfig()" placeholder="mafiabasementbar.com" class="bg-gray-900 text-white px-3 py-1.5 rounded-lg border border-gray-700 font-mono text-xs flex-1 focus:outline-none focus:border-blue-500">
+                </div>
+                <div class="flex items-center gap-2">
+                    <span class="text-gray-400 font-bold uppercase text-xs">QR Size:</span>
+                    <select id="cfg-qr-size" onchange="saveBoardConfig()" class="bg-gray-900 text-white px-2.5 py-1.5 rounded-lg border border-gray-700 font-bold">
+                        <option value="84">Standard</option>
+                        <option value="112">Large</option>
+                        <option value="0">Hidden</option>
+                    </select>
+                </div>
+                <div class="flex items-center gap-2">
+                    <span class="text-gray-400 font-bold uppercase text-xs">Passcode:</span>
+                    <select id="cfg-show-code" onchange="saveBoardConfig()" class="bg-gray-900 text-white px-2.5 py-1.5 rounded-lg border border-gray-700 font-bold">
+                        <option value="true">Show on TV</option>
+                        <option value="false">Hide</option>
+                    </select>
+                </div>
+                <div class="flex items-center gap-2">
+                    <button onclick="prevPage()" class="bg-gray-800 hover:bg-gray-700 px-3 py-1.5 rounded-lg font-bold border border-gray-600">◀ Prev</button>
+                    <button onclick="togglePause()" id="pause-btn" class="bg-blue-600 hover:bg-blue-500 px-3 py-1.5 rounded-lg font-bold">⏸ Pause</button>
+                    <button onclick="nextPage()" class="bg-gray-800 hover:bg-gray-700 px-3 py-1.5 rounded-lg font-bold border border-gray-600">Next ▶</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pinned Featured Specials Showcase -->
+        <div id="pinned-specials-box" class="hidden mb-3 rounded-2xl p-3.5 bg-gradient-to-r from-yellow-950/80 via-red-950/70 to-emerald-950/80 border-2 border-yellow-500/80 shadow-[0_0_20px_rgba(234,179,8,0.2)] shrink-0">
+            <div class="flex items-center justify-between mb-2 px-1">
+                <div class="flex items-center gap-2">
+                    <span class="text-2xl">🌟</span>
+                    <h2 id="pinned-specials-title" class="text-xl font-black uppercase tracking-wider text-yellow-300">🎄 Ugly Sweater Party Specials</h2>
+                </div>
+                <span class="text-[11px] font-black uppercase tracking-widest px-2.5 py-0.5 rounded-full bg-yellow-600/40 text-yellow-200 border border-yellow-500/60">Featured</span>
+            </div>
+            <div id="pinned-specials-list" class="grid grid-cols-1 gap-2"></div>
+        </div>
+
+        <!-- Main Vertical Content Area -->
+        <div id="board-content" class="flex-1 flex flex-col gap-2.5 overflow-hidden justify-start"></div>
+
+        <!-- Footer Dock with QR Code, Passcode, Page Dots & Clock -->
+        <div class="themed-panel rounded-2xl px-6 py-3.5 mt-4 flex justify-between items-center shrink-0 shadow-2xl gap-6">
+            <div id="qr-dock" class="flex items-center gap-4">
+                <div id="qr-container" class="bg-white p-2 rounded-xl shadow-lg shrink-0 border-2 border-blue-400"></div>
+                <div>
+                    <div class="flex items-center gap-2">
+                        <span class="text-xl">📱</span>
+                        <h3 class="text-xl font-black uppercase tracking-wider themed-text-1">Scan to Order</h3>
+                    </div>
+                    <p id="qr-url-label" class="text-xs font-mono text-gray-400 mt-0.5"></p>
+                    <div id="passcode-badge" class="hidden mt-1.5 inline-flex items-center gap-1.5 bg-blue-950/90 border border-blue-500/60 px-3 py-0.5 rounded-lg">
+                        <span class="text-[11px] font-bold uppercase tracking-wider text-blue-300">🔑 VIP Code:</span>
+                        <span id="passcode-value" class="text-sm font-black tracking-widest text-white uppercase"></span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex flex-col items-end justify-center gap-2 ml-auto">
+                <div id="clock-display" class="text-2xl font-black text-gray-200 tracking-wider leading-none"></div>
+                <div id="page-dots" class="flex items-center gap-2 mt-1"></div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        let rawMenu = [];
+        let pages = [];
+        let currentPage = 0;
+        let isPaused = false;
+        let currentTeam = 'none';
+        let activePasscode = '';
+        let specialsTitle = '🎄 Ugly Sweater Party Specials';
+
+        let itemsPerPage = parseInt(localStorage.getItem('board_per_page') || '11') || 11;
+        let flipSeconds = parseInt(localStorage.getItem('board_speed') || '10') || 10;
+        let specialsMode = localStorage.getItem('board_specials_mode') || 'pinned';
+        let hideEmpty = localStorage.getItem('board_hide_empty') === 'true';
+        let rotationClass = localStorage.getItem('board_rotate') || 'rot-0';
+        let qrUrl = localStorage.getItem('board_qr_url') || 'mafiabasementbar.com';
+        let qrSize = parseInt(localStorage.getItem('board_qr_size') || '84');
+        if (isNaN(qrSize)) qrSize = 84;
+        let showPasscode = localStorage.getItem('board_show_code') !== 'false';
+
+        let tickElapsed = 0;
+        const tickIntervalMs = 100;
+
+        const sectionOrder = [
+            { key: 'Specials', title: 'Featured Specials', icon: '🌟', accent: 'border-yellow-400', text: 'text-yellow-300', badge: 'bg-yellow-900/70 text-yellow-200 border-yellow-600' },
+            { key: 'Draft', title: 'On Tap / Drafts', icon: '🍺', accent: 'border-emerald-500', text: 'text-emerald-400', badge: 'bg-emerald-900/70 text-emerald-200 border-emerald-700' },
+            { key: 'Beer', title: 'Beer (Cans & Bottles)', icon: '🥫', accent: 'border-yellow-500', text: 'text-yellow-400', badge: 'bg-yellow-900/70 text-yellow-200 border-yellow-700' },
+            { key: 'Seltzer', title: 'Hard Seltzers', icon: '🫧', accent: 'border-cyan-500', text: 'text-cyan-400', badge: 'bg-cyan-900/70 text-cyan-200 border-cyan-700' },
+            { key: 'Cider', title: 'Ciders', icon: '🍎', accent: 'border-amber-500', text: 'text-amber-400', badge: 'bg-amber-900/70 text-amber-200 border-amber-700' },
+            { key: 'Cocktail', title: 'Cocktails & Mixed', icon: '🍸', accent: 'border-indigo-500', text: 'text-indigo-400', badge: 'bg-indigo-900/70 text-indigo-200 border-indigo-700' },
+            { key: 'Wine', title: 'Wine', icon: '🍷', accent: 'border-rose-500', text: 'text-rose-400', badge: 'bg-rose-900/70 text-rose-200 border-rose-700' },
+            { key: 'Liquor', title: 'Liquor & Shots', icon: '🥃', accent: 'border-red-500', text: 'text-red-400', badge: 'bg-red-900/70 text-red-200 border-red-700' },
+            { key: 'Other', title: 'Other Drinks', icon: '🥤', accent: 'border-blue-500', text: 'text-blue-400', badge: 'bg-blue-900/70 text-blue-200 border-blue-700' }
+        ];
+
+        function initSettingsUI() {
+            document.getElementById('cfg-per-page').value = String(itemsPerPage);
+            document.getElementById('cfg-speed').value = String(flipSeconds);
+            document.getElementById('cfg-specials-mode').value = specialsMode;
+            document.getElementById('cfg-hide-empty').value = String(hideEmpty);
+            document.getElementById('cfg-rotate').value = rotationClass;
+            document.getElementById('cfg-qr-url').value = qrUrl;
+            document.getElementById('cfg-qr-size').value = String(qrSize);
+            document.getElementById('cfg-show-code').value = String(showPasscode);
+            applyRotation();
+            renderQrCode();
+        }
+
+        function applyRotation() {
+            const wrapper = document.getElementById('board-wrapper');
+            wrapper.classList.remove('rot-0', 'rot-90', 'rot-270');
+            wrapper.classList.add(rotationClass);
+        }
+
+        function renderQrCode() {
+            const dock = document.getElementById('qr-dock');
+            const container = document.getElementById('qr-container');
+            const label = document.getElementById('qr-url-label');
+
+            if (qrSize <= 0) {
+                dock.classList.add('hidden');
+                return;
+            }
+            dock.classList.remove('hidden');
+            let displayUrl = (qrUrl || 'mafiabasementbar.com').trim().replace(/^https?:\/\//, '');
+            label.innerText = displayUrl;
+
+            container.innerHTML = `<img src="/qrcode_mafiabasementbar.com.png" style="width: ${qrSize}px; height: ${qrSize}px; object-fit: contain;" alt="Scan to Order">`;
+            updatePasscodeDisplay();
+        }
+
+        function updatePasscodeDisplay() {
+            const badge = document.getElementById('passcode-badge');
+            const valSpan = document.getElementById('passcode-value');
+            if (showPasscode && activePasscode && activePasscode.trim() !== '') {
+                valSpan.innerText = activePasscode.toUpperCase();
+                badge.classList.remove('hidden');
+            } else {
+                badge.classList.add('hidden');
+            }
+        }
+
+        function fetchPasscodeAndTitle() {
+            fetch('/api/settings/code').then(r => r.json()).then(data => {
+                activePasscode = data.code || '';
+                updatePasscodeDisplay();
+            }).catch(() => {});
+
+            fetch('/api/settings/specials_title').then(r => r.json()).then(data => {
+                if (data.title && data.title !== specialsTitle) {
+                    specialsTitle = data.title;
+                    document.getElementById('pinned-specials-title').innerText = specialsTitle;
+                    sectionOrder[0].title = specialsTitle;
+                    buildPages();
+                    renderCurrentPage(false);
+                }
+            }).catch(() => {});
+        }
+
+        function toggleSettings() {
+            document.getElementById('settings-drawer').classList.toggle('hidden');
+        }
+
+        function saveBoardConfig() {
+            itemsPerPage = parseInt(document.getElementById('cfg-per-page').value) || 11;
+            flipSeconds = parseInt(document.getElementById('cfg-speed').value) || 10;
+            specialsMode = document.getElementById('cfg-specials-mode').value;
+            hideEmpty = document.getElementById('cfg-hide-empty').value === 'true';
+            rotationClass = document.getElementById('cfg-rotate').value;
+            qrUrl = document.getElementById('cfg-qr-url').value.trim() || 'mafiabasementbar.com';
+            qrSize = parseInt(document.getElementById('cfg-qr-size').value);
+            if (isNaN(qrSize)) qrSize = 84;
+            showPasscode = document.getElementById('cfg-show-code').value === 'true';
+
+            localStorage.setItem('board_per_page', itemsPerPage);
+            localStorage.setItem('board_speed', flipSeconds);
+            localStorage.setItem('board_specials_mode', specialsMode);
+            localStorage.setItem('board_hide_empty', hideEmpty);
+            localStorage.setItem('board_rotate', rotationClass);
+            localStorage.setItem('board_qr_url', qrUrl);
+            localStorage.setItem('board_qr_size', qrSize);
+            localStorage.setItem('board_show_code', showPasscode);
+
+            applyRotation();
+            renderQrCode();
+            buildPages();
+            if (currentPage >= pages.length) currentPage = 0;
+            renderCurrentPage(true);
+            tickElapsed = 0;
+        }
+
+        function togglePause() {
+            isPaused = !isPaused;
+            const btn = document.getElementById('pause-btn');
+            btn.innerText = isPaused ? '▶ Resume' : '⏸ Pause';
+            btn.className = isPaused
+                ? 'bg-green-600 hover:bg-green-500 px-3 py-1.5 rounded-lg font-bold'
+                : 'bg-blue-600 hover:bg-blue-500 px-3 py-1.5 rounded-lg font-bold';
+        }
+
+        function nextPage() {
+            if (pages.length <= 1) return;
+            currentPage = (currentPage + 1) % pages.length;
+            tickElapsed = 0;
+            renderCurrentPage(true);
+        }
+
+        function prevPage() {
+            if (pages.length <= 1) return;
+            currentPage = (currentPage - 1 + pages.length) % pages.length;
+            tickElapsed = 0;
+            renderCurrentPage(true);
+        }
+
+        function isDrinkSoldOut(drink) {
+            return (drink.current_pours !== null && drink.current_pours !== undefined) && drink.current_pours === 0;
+        }
+
+        function buildPages() {
+            let groups = {};
+            sectionOrder.forEach(s => groups[s.key] = []);
+            sectionOrder[0].title = specialsTitle;
+
+            let activeCount = 0;
+            let pinnedSpecials = [];
+
+            rawMenu.forEach(drink => {
+                let soldOut = isDrinkSoldOut(drink);
+                if (hideEmpty && soldOut) return;
+                if (!soldOut) activeCount++;
+
+                if (drink.is_special) {
+                    if (specialsMode === 'pinned') {
+                        pinnedSpecials.push(drink);
+                    } else {
+                        groups['Specials'].push(drink);
+                    }
+                }
+
+                if (drink.container === 'Draft') {
+                    groups['Draft'].push(drink);
+                } else if (drink.category === 'Shot' || drink.category === 'Liquor' || drink.container === 'Liquor') {
+                    groups['Liquor'].push(drink);
+                } else if (groups[drink.category]) {
+                    groups[drink.category].push(drink);
+                } else {
+                    groups['Other'].push(drink);
+                }
+            });
+
+            const pinnedBox = document.getElementById('pinned-specials-box');
+            const pinnedList = document.getElementById('pinned-specials-list');
+            document.getElementById('pinned-specials-title').innerText = specialsTitle;
+
+            if (specialsMode === 'pinned' && pinnedSpecials.length > 0) {
+                pinnedBox.classList.remove('hidden');
+                pinnedList.innerHTML = pinnedSpecials.map(d => renderDrinkRow(d, sectionOrder[0])).join('');
+            } else {
+                pinnedBox.classList.add('hidden');
+                pinnedList.innerHTML = '';
+            }
+
+            let effectiveBudget = itemsPerPage;
+            if (specialsMode === 'pinned' && pinnedSpecials.length > 0) {
+                effectiveBudget = Math.max(4, itemsPerPage - (pinnedSpecials.length + 1));
+            }
+
+            Object.keys(groups).forEach(k => {
+                groups[k].sort((a, b) => (a.item_name || '').localeCompare(b.item_name || ''));
+            });
+
+            document.getElementById('item-summary').innerText = `${activeCount} Available  •  ${rawMenu.length} Total Items`;
+
+            pages = [];
+            let currentSlots = [];
+            let usedWeight = 0;
+
+            sectionOrder.forEach(sec => {
+                let items = groups[sec.key];
+                if (!items || items.length === 0) return;
+
+                items.forEach((drink, idx) => {
+                    let needsHeader = (idx === 0) || (usedWeight === 0);
+                    let neededWeight = (needsHeader ? 0.65 : 0) + 1;
+
+                    if (usedWeight + neededWeight > effectiveBudget && currentSlots.length > 0) {
+                        pages.push(currentSlots);
+                        currentSlots = [];
+                        usedWeight = 0;
+                        needsHeader = true;
+                    }
+
+                    if (needsHeader) {
+                        let contLabel = idx > 0 ? `${sec.title} (Cont.)` : sec.title;
+                        currentSlots.push({ type: 'header', sec: sec, title: contLabel, totalCount: items.length });
+                        usedWeight += 0.65;
+                    }
+
+                    currentSlots.push({ type: 'drink', sec: sec, drink: drink });
+                    usedWeight += 1;
+                });
+            });
+
+            if (currentSlots.length > 0) {
+                pages.push(currentSlots);
+            }
+            if (pages.length === 0) {
+                pages.push([]);
+            }
+        }
+
+        function renderDrinkRow(drink, sec) {
+            let isPctTracked = (drink.container === 'Liquor' || drink.category === 'Wine' || drink.category === 'Liquor' || drink.category === 'Shot');
+            let hasPours = (drink.current_pours !== null && drink.current_pours !== undefined);
+            let soldOut = isDrinkSoldOut(drink);
+
+            let label = drink.container ? drink.container : (drink.category === 'Wine' ? 'Bottle' : drink.category);
+            let statusText = '';
+            let subStatusText = '';
+            let barPercent = null;
+            let barColor = 'bg-emerald-500';
+            let statusBadgeColor = 'text-emerald-400';
+
+            if (label === 'Draft' && hasPours) {
+                let maxP = drink.max_pours > 0 ? drink.max_pours : Math.max(1, drink.current_pours);
+                barPercent = Math.min(100, Math.round((drink.current_pours / maxP) * 100));
+                if (soldOut) {
+                    statusText = 'KICKED';
+                    statusBadgeColor = 'text-red-400';
+                    barColor = 'bg-red-600';
+                } else {
+                    statusText = `${drink.current_pours} Left`;
+                    subStatusText = `${barPercent}%`;
+                    if (barPercent <= 10) {
+                        barColor = 'bg-red-500 animate-pulse';
+                        statusBadgeColor = 'text-red-400';
+                    } else if (barPercent <= 30) {
+                        barColor = 'bg-yellow-500';
+                        statusBadgeColor = 'text-yellow-400';
+                    }
+                }
+            } else if (isPctTracked && hasPours && drink.max_pours > 0) {
+                barPercent = Math.min(100, Math.round((drink.current_pours / drink.max_pours) * 100));
+                if (soldOut) {
+                    statusText = 'EMPTY';
+                    statusBadgeColor = 'text-red-400';
+                    barColor = 'bg-red-600';
+                } else {
+                    statusText = `${barPercent}% Full`;
+                    subStatusText = `${drink.current_pours} pours`;
+                    if (barPercent <= 20) {
+                        barColor = 'bg-red-500';
+                        statusBadgeColor = 'text-red-400';
+                    } else if (barPercent <= 45) {
+                        barColor = 'bg-yellow-500';
+                        statusBadgeColor = 'text-yellow-400';
+                    }
+                }
+            } else if (hasPours) {
+                let maxP = drink.max_pours > 0 ? drink.max_pours : Math.max(12, drink.current_pours);
+                barPercent = Math.min(100, Math.round((drink.current_pours / maxP) * 100));
+                if (soldOut) {
+                    statusText = 'SOLD OUT';
+                    statusBadgeColor = 'text-red-400';
+                    barColor = 'bg-red-600';
+                } else {
+                    statusText = `${drink.current_pours} Left`;
+                    subStatusText = label;
+                    if (drink.current_pours <= 3) {
+                        barColor = 'bg-red-500';
+                        statusBadgeColor = 'text-red-400';
+                    } else if (drink.current_pours <= 6) {
+                        barColor = 'bg-yellow-500';
+                        statusBadgeColor = 'text-yellow-400';
+                    }
+                }
+            } else {
+                statusText = sec.key === 'Specials' ? 'Featured' : 'Available';
+                subStatusText = drink.category;
+            }
+
+            let metaPills = [];
+            if (drink.abv) metaPills.push(`💧 ${drink.abv}`);
+            if (drink.calories) metaPills.push(`🔥 ${drink.calories} cal`);
+            let metaHtml = metaPills.length > 0 ? `<span class="text-xs font-bold text-gray-300 bg-gray-900/80 px-2.5 py-0.5 rounded-md border border-gray-700">${metaPills.join('  •  ')}</span>` : '';
+            let notesHtml = drink.notes ? `<span class="text-sm text-gray-300 italic truncate ml-2">${drink.notes}</span>` : '';
+
+            let rowOpacity = soldOut ? 'opacity-40 grayscale' : '';
+            let titleStrike = soldOut ? 'line-through text-gray-400' : (sec.key === 'Specials' ? 'text-yellow-200' : 'text-white');
+
+            let gaugeHtml = '';
+            if (barPercent !== null) {
+                gaugeHtml = `
+                    <div class="w-40 bg-gray-900 h-3 rounded-full overflow-hidden border border-gray-700 shadow-inner mt-1.5">
+                        <div class="h-full ${barColor} transition-all duration-500" style="width: ${barPercent}%"></div>
+                    </div>
+                `;
+            }
+
+            return `
+                <div class="themed-card rounded-xl px-5 py-2.5 border-l-[6px] ${sec.accent} shadow-md flex justify-between items-center gap-4 ${rowOpacity}">
+                    <div class="flex-1 min-w-0">
+                        <div class="flex items-center gap-3">
+                            <h3 class="text-2xl font-black tracking-tight truncate ${titleStrike}">${drink.item_name}</h3>
+                            <span class="text-[11px] uppercase tracking-widest px-2 py-0.5 rounded border font-bold shrink-0 ${sec.badge}">${label}</span>
+                        </div>
+                        <div class="flex items-center mt-1 truncate">
+                            ${metaHtml}
+                            ${notesHtml}
+                        </div>
+                    </div>
+                    <div class="text-right shrink-0 flex flex-col items-end justify-center">
+                        <div class="flex items-baseline gap-2">
+                            <span class="text-2xl font-black ${statusBadgeColor} leading-none">${statusText}</span>
+                            ${subStatusText ? `<span class="text-xs font-bold text-gray-400 uppercase tracking-wider">(${subStatusText})</span>` : ''}
+                        </div>
+                        ${gaugeHtml}
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderCurrentPage(animate = false) {
+            const container = document.getElementById('board-content');
+            const indicator = document.getElementById('page-indicator');
+            const dots = document.getElementById('page-dots');
+
+            if (currentPage >= pages.length) currentPage = 0;
+            indicator.innerText = `PAGE ${currentPage + 1} / ${pages.length}`;
+
+            if (animate) {
+                container.classList.remove('page-fade');
+                void container.offsetWidth;
+                container.classList.add('page-fade');
+            }
+
+            let slots = pages[currentPage] || [];
+            if (slots.length === 0) {
+                container.innerHTML = `<div class="text-gray-500 italic text-2xl flex-1 flex items-center justify-center">No drinks to display</div>`;
+            } else {
+                let html = '';
+                slots.forEach(slot => {
+                    if (slot.type === 'header') {
+                        html += `
+                            <div class="flex items-center justify-between px-2 pt-2 pb-1 border-b border-gray-700/80">
+                                <div class="flex items-center gap-2.5">
+                                    <span class="text-2xl">${slot.sec.icon}</span>
+                                    <h2 class="text-xl font-black uppercase tracking-wider ${slot.sec.text}">${slot.title}</h2>
+                                </div>
+                                <span class="text-xs font-bold text-gray-400 uppercase tracking-widest">${slot.totalCount} Items</span>
+                            </div>
+                        `;
+                    } else {
+                        html += renderDrinkRow(slot.drink, slot.sec);
+                    }
+                });
+                container.innerHTML = html;
+            }
+
+            let dotsHtml = '';
+            for (let i = 0; i < pages.length; i++) {
+                let activeClass = i === currentPage ? 'w-8 bg-blue-500' : 'w-2.5 bg-gray-700 hover:bg-gray-500';
+                dotsHtml += `<button onclick="currentPage=${i}; tickElapsed=0; renderCurrentPage(true);" class="h-2.5 rounded-full transition-all duration-300 ${activeClass}"></button>`;
+            }
+            dots.innerHTML = dotsHtml;
+        }
+
+        function fetchMenuData() {
+            fetch('/menu').then(r => r.json()).then(data => {
+                rawMenu = data.menu || [];
+                buildPages();
+                renderCurrentPage(false);
+            }).catch(e => console.log("Menu fetch error", e));
+        }
+
+        function applyBoardTheme(team) {
+            currentTeam = team;
+            document.body.classList.remove('theme-bills', 'theme-sabres', 'theme-christmas', 'theme-bluejays');
+            const iconEl = document.getElementById('board-header-icon');
+            if (iconEl) iconEl.innerText = (currentTeam === 'christmas') ? '🎄' : (currentTeam === 'bluejays') ? '⚾' : '🍻';
+            if (currentTeam === 'bills') {
+                document.body.classList.add('theme-bills');
+            } else if (currentTeam === 'sabres') {
+                document.body.classList.add('theme-sabres');
+            } else if (currentTeam === 'christmas') {
+                document.body.classList.add('theme-christmas');
+            } else if (currentTeam === 'bluejays') {
+                document.body.classList.add('theme-bluejays');
+            }
+        }
+
+        function fetchTheme() {
+            fetch('/api/settings/theme').then(r => r.json()).then(tData => {
+                if (tData.theme && tData.theme !== 'auto') {
+                    if (tData.theme !== currentTeam) applyBoardTheme(tData.theme);
+                    return;
+                }
+                fetch('/api/event/current').then(r => r.json()).then(data => {
+                    if (data.team && data.team !== currentTeam) applyBoardTheme(data.team);
+                }).catch(() => {});
+            }).catch(() => {
+                fetch('/api/event/current').then(r => r.json()).then(data => {
+                    if (data.team && data.team !== currentTeam) applyBoardTheme(data.team);
+                }).catch(() => {});
+            });
+        }
+
+        function updateClock() {
+            const now = new Date();
+            document.getElementById('clock-display').innerText = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        }
+
+        function initSnowflakes() {
+            const container = document.getElementById('snow-container');
+            if (!container) return;
+            container.innerHTML = '';
+            const symbols = ['❄', '❅', '❆', '•', '•'];
+            const flakeCount = 42;
+
+            for (let i = 0; i < flakeCount; i++) {
+                const span = document.createElement('span');
+                span.className = 'snowflake';
+                span.innerText = symbols[i % symbols.length];
+
+                const left = Math.random() * 100;
+                const size = (Math.random() * 14 + 8).toFixed(1);
+                const opacity = (Math.random() * 0.4 + 0.15).toFixed(2);
+                const fallDuration = (Math.random() * 10 + 9).toFixed(1);
+                const swayDuration = (Math.random() * 4 + 3).toFixed(1);
+                const delay = (Math.random() * -18).toFixed(1);
+
+                span.style.left = `${left}%`;
+                span.style.fontSize = `${size}px`;
+                span.style.opacity = opacity;
+                span.style.animationDuration = `${fallDuration}s, ${swayDuration}s`;
+                span.style.animationDelay = `${delay}s, 0s`;
+
+                container.appendChild(span);
+            }
+        }
+
+        setInterval(() => {
+            if (isPaused || pages.length <= 1) {
+                document.getElementById('cycle-progress').style.width = '0%';
+                return;
+            }
+            tickElapsed += tickIntervalMs;
+            let totalMs = flipSeconds * 1000;
+            let pct = Math.min(100, (tickElapsed / totalMs) * 100);
+            document.getElementById('cycle-progress').style.width = pct + '%';
+
+            if (tickElapsed >= totalMs) {
+                tickElapsed = 0;
+                currentPage = (currentPage + 1) % pages.length;
+                renderCurrentPage(true);
+            }
+        }, tickIntervalMs);
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight') nextPage();
+            if (e.key === 'ArrowLeft') prevPage();
+            if (e.key === ' ') togglePause();
+        });
+
+        initSettingsUI();
+        initSnowflakes();
+        fetchPasscodeAndTitle();
+        fetchMenuData();
+        fetchTheme();
+        updateClock();
+
+        setInterval(fetchMenuData, 3000);
+        setInterval(fetchPasscodeAndTitle, 5000);
+        setInterval(fetchTheme, 4000);
+        setInterval(updateClock, 10000);
+    </script>
+</body>
+</html>
